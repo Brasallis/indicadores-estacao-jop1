@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = "nodejs";
+export const maxDuration = 60; // Permite tempo maior para salvar base64 grandes
 
 export async function POST(request: Request) {
   try {

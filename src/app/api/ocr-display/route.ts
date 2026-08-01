@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const runtime = "nodejs";
+export const maxDuration = 60; // Permite até 60 segundos de execução na Vercel
 
 export async function POST(request: Request) {
   try {

@@ -62,8 +62,8 @@ export default function RegisterOCR() {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
-        // Redimensionar para evitar travamento no celular e falha no toBlob
-        const MAX_DIMENSION = 1280;
+        // Redimensionar para evitar estourar o limite de payload da Vercel (4.5MB) e PostgreSQL
+        const MAX_DIMENSION = 800;
         let width = img.width;
         let height = img.height;
 
@@ -109,7 +109,7 @@ export default function RegisterOCR() {
           if (!blob) return reject('No blob');
           const finalFile = new File([blob], file.name, { type: 'image/jpeg' });
           resolve(finalFile);
-        }, 'image/jpeg', 0.85);
+        }, 'image/jpeg', 0.6);
       };
       img.onerror = reject;
       img.src = URL.createObjectURL(file);
@@ -123,29 +123,22 @@ export default function RegisterOCR() {
     setIsProcessing(true);
     
     try {
-      // 1. Aplicar Marca D'água (e Redimensionar)
+      // 1. Aplicar Marca D'água (e Redimensionar agressivamente para caber no banco)
       const watermarkedFile = await processImageWithWatermark(file, currentStep);
 
-      // 2. Fazer Upload da imagem para gerar URL Permanente
-      const formData = new FormData();
-      formData.append('file', watermarkedFile);
-      
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const uploadResult = await uploadRes.json();
-      const savedUrl = uploadResult.success ? uploadResult.url : null;
-
-      // 3. Converter para Base64 e enviar para a IA
+      // 2. Converter para Base64
       const reader = new FileReader();
       reader.readAsDataURL(watermarkedFile);
       reader.onload = async () => {
-        const base64Data = reader.result?.toString().split(',')[1];
-        if (!base64Data) {
+        const fullBase64String = reader.result?.toString(); // Ex: data:image/jpeg;base64,/9j/4...
+        const base64Data = fullBase64String?.split(',')[1];
+        
+        if (!base64Data || !fullBase64String) {
           setIsProcessing(false);
           return;
         }
+
+        const savedUrl = fullBase64String; // Vamos salvar a string completa no BD para renderizar depois
 
         try {
           const res = await fetch('/api/ocr-display', {
