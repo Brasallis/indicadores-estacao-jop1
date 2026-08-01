@@ -6,7 +6,9 @@ import { ArrowLeft, Printer, TrendingUp, Users, Settings, Trophy, FileText } fro
 import styles from './page.module.css';
 import { STATIONS } from '@/lib/stations';
 
-export default function RelatorioExecutivo() {
+import { Suspense } from 'react';
+
+function RelatorioContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filterType = searchParams.get('type') || 'monthly';
@@ -142,5 +144,13 @@ export default function RelatorioExecutivo() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RelatorioExecutivo() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Carregando relatório corporativo...</div>}>
+      <RelatorioContent />
+    </Suspense>
   );
 }
