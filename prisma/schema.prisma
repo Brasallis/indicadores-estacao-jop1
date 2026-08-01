@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Station {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  
+  audits    ShiftAudit[]
+}
+
+// Representa a auditoria de um turno inteiro (uma foto do formulário)
+model ShiftAudit {
+  id           String   @id @default(uuid())
+  stationId    String
+  date         DateTime @default(now())
+  startTime    String   // Ex: "07:58"
+  endTime      String   // Ex: "15:05"
+  operatorName String?
+  
+  // Auditoria
+  documentUrl  String?
+  rawOcrText   String?
+  
+  createdAt    DateTime @default(now())
+  
+  station      Station  @relation(fields: [stationId], references: [id])
+  readings     TurnstileReading[]
+}
+
+// Representa a linha de uma catraca (ex: JOP_01 a JOP_11) naquele turno
+model TurnstileReading {
+  id           String   @id @default(uuid())
+  auditId      String
+  turnstileId  String   // Ex: "JOP_01 PNE", "JOP_02"
+  
+  // Valores do formulário (Entrada/Saída no Inicio/Fim)
+  entryStart    Int?
+  entryStartImg String?
+  entryEnd      Int?
+  entryEndImg   String?
+  exitStart     Int?
+  exitStartImg  String?
+  exitEnd       Int?
+  exitEndImg    String?
+  
+  // Se marcou um 'X' na planilha
+  isOutOfOrder Boolean  @default(false)
+
+  audit        ShiftAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+}

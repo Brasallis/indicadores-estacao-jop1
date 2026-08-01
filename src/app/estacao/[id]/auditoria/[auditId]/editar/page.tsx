@@ -1,0 +1,550 @@
+'use client';
+
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, Loader2, Camera, CheckCircle2, ChevronRight, SkipForward } from 'lucide-react';
+import { getStationById } from '@/lib/stations';
+import styles from '../../../registrar/page.module.css';
+
+interface Step {
+  turnstileId: string;
+  type: 'entry' | 'exit';
+  readingIndex: number;
+}
+
+export default function EditAudit() {
+  const params = useParams();
+  const router = useRouter();
+
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  const stationId = params.id as string;
+  const auditId = params.auditId as string;
+  const station = getStationById(stationId);
+
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Metadados do Turno
+  const [date, setDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [operatorName, setOperatorName] = useState('');
+
+  // Leituras da Grade
+  const [readings, setReadings] = useState<any[]>([]);
+
+  // Wizard State (-1 = Metadados, 0 to N-1 = Fotos, N = Resumo)
+  const [currentStepIndex, setCurrentStepIndex] = useState(-1);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isAlreadyClosed, setIsAlreadyClosed] = useState(false);
+
+  useEffect(() => {
+    const fetchAudit = async () => {
+      try {
+        const res = await fetch(`/api/audit/${auditId}`);
+        const result = await res.json();
+        if (result.success) {
+          const audit = result.data;
+          setDate(new Date(audit.date).toISOString().split('T')[0]);
+          setStartTime(audit.startTime);
+          setEndTime(audit.endTime);
+          setOperatorName(audit.operatorName || '');
+
+          // Map readings
+          let closedCheck = false;
+          const mappedReadings = audit.readings.map((r: any) => {
+            if (r.entryEnd !== null || r.exitEnd !== null) closedCheck = true;
+            return {
+              turnstileId: r.turnstileId,
+              entryStart: r.entryStart !== null ? r.entryStart.toString() : '',
+              entryStartImg: r.entryStartImg || null,
+              exitStart: r.exitStart !== null ? r.exitStart.toString() : '',
+              exitStartImg: r.exitStartImg || null,
+              entryEnd: r.entryEnd !== null ? r.entryEnd.toString() : '',
+              entryEndImg: r.entryEndImg || null,
+              exitEnd: r.exitEnd !== null ? r.exitEnd.toString() : '',
+              exitEndImg: r.exitEndImg || null,
+              isOutOfOrder: r.isOutOfOrder
+            };
+          });
+          mappedReadings.sort((a: any, b: any) => a.turnstileId.localeCompare(b.turnstileId));
+          setReadings(mappedReadings);
+          setIsAlreadyClosed(closedCheck);
+        }
+      } catch (e) {
+        console.error('Erro ao carregar auditoria', e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAudit();
+  }, [auditId]);
+
+  // Generate steps based on readings
+  const steps = useMemo<Step[]>(() => {
+    const s: Step[] = [];
+    readings.forEach((r, i) => {
+      s.push({ turnstileId: r.turnstileId, type: 'entry', readingIndex: i });
+      s.push({ turnstileId: r.turnstileId, type: 'exit', readingIndex: i });
+    });
+    return s;
+  }, [readings]);
+
+  const currentStep = steps[currentStepIndex];
+
+  // Helper to draw watermark
+  const processImageWithWatermark = (file: File, step: Step): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        // Redimensionar para evitar travamento no celular e falha no toBlob
+        const MAX_DIMENSION = 1280;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_DIMENSION) {
+            height *= MAX_DIMENSION / width;
+            width = MAX_DIMENSION;
+          }
+        } else {
+          if (height > MAX_DIMENSION) {
+            width *= MAX_DIMENSION / height;
+            height = MAX_DIMENSION;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject('No context');
+
+        // Draw original image
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Add Watermark overlay background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        const barHeight = Math.max(80, height * 0.12);
+        ctx.fillRect(0, height - barHeight, width, barHeight);
+
+        // Draw text
+        ctx.fillStyle = '#ffffff';
+        const fontSize = Math.max(16, height * 0.035);
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        
+        const timestamp = new Date().toLocaleString('pt-BR');
+        const stationName = station.name;
+        const targetDesc = `${step.turnstileId} - ${step.type === 'entry' ? 'ENTRADA' : 'SAÍDA'}`;
+
+        ctx.fillText(`📍 ${stationName} | 👤 Op: ${operatorName}`, 20, height - barHeight + fontSize + 15);
+        ctx.fillText(`🎯 ${targetDesc} | 🕒 ${timestamp}`, 20, height - barHeight + fontSize * 2.5 + 15);
+
+        canvas.toBlob((blob) => {
+          if (!blob) return reject('No blob');
+          const finalFile = new File([blob], file.name, { type: 'image/jpeg' });
+          resolve(finalFile);
+        }, 'image/jpeg', 0.85);
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !currentStep) return;
+
+    setIsProcessing(true);
+    
+    try {
+      // 1. Aplicar Marca D'água
+      const watermarkedFile = await processImageWithWatermark(file, currentStep);
+
+      // 2. Fazer Upload
+      const formData = new FormData();
+      formData.append('file', watermarkedFile);
+      
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const uploadResult = await uploadRes.json();
+      const savedUrl = uploadResult.success ? uploadResult.url : null;
+
+      // 3. Converter para Base64 e enviar para a IA
+      const reader = new FileReader();
+      reader.readAsDataURL(watermarkedFile);
+      reader.onload = async () => {
+        const base64Data = reader.result?.toString().split(',')[1];
+        if (!base64Data) {
+          setIsProcessing(false);
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/ocr-display', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              imageBase64: base64Data, 
+              mimeType: 'image/jpeg',
+              expectedTurnstile: currentStep.turnstileId
+            })
+          });
+          const result = await res.json();
+          
+          if (result.success && result.data) {
+            const val = result.data.value;
+            const newReadings = [...readings];
+            
+            if (currentStep.type === 'entry') {
+              newReadings[currentStep.readingIndex].entryEnd = val;
+              newReadings[currentStep.readingIndex].entryEndImg = savedUrl;
+            } else {
+              newReadings[currentStep.readingIndex].exitEnd = val;
+              newReadings[currentStep.readingIndex].exitEndImg = savedUrl;
+            }
+
+            if (result.data.isOutOfOrder) {
+              newReadings[currentStep.readingIndex].isOutOfOrder = true;
+            }
+
+            setReadings(newReadings);
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          if (cameraInputRef.current) cameraInputRef.current.value = '';
+          if (galleryInputRef.current) galleryInputRef.current.value = '';
+          setCurrentStepIndex(prev => prev + 1);
+          setIsProcessing(false);
+        }
+      };
+    } catch (err) {
+      console.error(err);
+      setIsProcessing(false);
+    }
+  };
+
+  const skipStep = () => {
+    setCurrentStepIndex(prev => prev + 1);
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsProcessing(true);
+      const payload = {
+        date,
+        startTime,
+        endTime,
+        operatorName,
+        readings 
+      };
+
+      const res = await fetch(`/api/audit/${auditId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('Falha ao atualizar no banco');
+
+      alert('Fechamento de turno concluído com sucesso!');
+      router.push(`/estacao/${stationId}`);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao atualizar no banco de dados.');
+      setIsProcessing(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8fafc' }}>
+        <Loader2 size={48} style={{ animation: 'spin 1s linear infinite', color: '#f9ab00' }} />
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <button onClick={() => router.push(`/estacao/${stationId}`)} className={styles.backButton}>
+          <ArrowLeft size={20} /> Voltar
+        </button>
+        <h1 className={styles.title}>Fechamento (Câmera Guiada)</h1>
+      </header>
+
+      {currentStepIndex === -1 && (
+        <div className={styles.formSection} style={{ marginTop: '2rem' }}>
+          <h2 style={{ marginBottom: '1rem', color: '#1f2937' }}>1. Dados do Turno</h2>
+          <div className={styles.formGrid}>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Data</label>
+              <input type="date" className="input-premium" value={date} onChange={e => setDate(e.target.value)} required />
+            </div>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Instante Inicial (Ex: 07:58)</label>
+              <input type="time" className="input-premium" value={startTime} onChange={e => setStartTime(e.target.value)} required />
+            </div>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Instante Final (Ex: 15:05)</label>
+              <input type="time" className="input-premium" value={endTime} onChange={e => setEndTime(e.target.value)} required />
+            </div>
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Auditor/Operador</label>
+              <input type="text" className="input-premium" value={operatorName} onChange={e => setOperatorName(e.target.value)} placeholder="Nome" />
+            </div>
+          </div>
+          <button 
+            className={`btn-primary ${styles.submitBtn}`} 
+            onClick={() => {
+              if (operatorName) {
+                if (isAlreadyClosed) setCurrentStepIndex(steps.length);
+                else setCurrentStepIndex(0);
+              }
+              else alert('Preencha o nome do operador!');
+            }}
+            style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isAlreadyClosed ? '#3b82f6' : '#f9ab00' }}
+          >
+            {isAlreadyClosed ? 'Editar Tabela do Turno Fechado' : 'Começar Captura de FIM DE TURNO'} <ChevronRight style={{ marginLeft: 8 }} />
+          </button>
+        </div>
+      )}
+
+      {currentStepIndex >= 0 && currentStepIndex < steps.length && currentStep && (
+        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 600, color: '#4b5563' }}>
+            Passo {currentStepIndex + 1} de {steps.length}
+          </div>
+          
+          <div style={{ 
+            backgroundColor: '#fff', 
+            borderRadius: '16px', 
+            padding: '2rem', 
+            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+            textAlign: 'center',
+            maxWidth: '500px',
+            width: '100%',
+            marginBottom: '2rem',
+            border: '2px solid #f9ab00'
+          }}>
+            <h3 style={{ fontSize: '1rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>Bloqueio Atual</h3>
+            <h2 style={{ fontSize: '2.5rem', color: '#b07900', fontWeight: 'bold', margin: '0.5rem 0' }}>{currentStep.turnstileId}</h2>
+
+            <div style={{ 
+              backgroundColor: currentStep.type === 'entry' ? '#fff7ed' : '#eff6ff', 
+              border: `2px solid ${currentStep.type === 'entry' ? '#fdba74' : '#93c5fd'}`, 
+              borderRadius: '12px', 
+              padding: '1.5rem', 
+              margin: '2rem 0' 
+            }}>
+              <p style={{ fontSize: '1.1rem', color: '#4b5563', margin: '0 0 0.5rem 0' }}>Por favor, registre a foto da:</p>
+              <p style={{ fontSize: '2.2rem', fontWeight: '900', color: currentStep.type === 'entry' ? '#ea580c' : '#2563eb', margin: 0 }}>
+                {currentStep.type === 'entry' ? 'ENTRADA' : 'SAÍDA'}
+              </p>
+              <p style={{ fontSize: '0.9rem', color: '#6b7280', margin: '0.5rem 0 0 0' }}>(Fechamento de Turno)</p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
+              <label 
+                className={`btn-primary ${isProcessing ? 'disabled' : ''}`}
+                style={{ 
+                  flex: 1, 
+                  padding: '1.5rem 1rem', 
+                  fontSize: '1.1rem', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center', 
+                  gap: '8px',
+                  borderRadius: '12px',
+                  backgroundColor: '#f9ab00',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: isProcessing ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  ref={cameraInputRef}
+                  onChange={handleCapture}
+                  disabled={isProcessing}
+                  style={{ display: 'none' }}
+                />
+                {isProcessing ? (
+                  <>
+                    <Loader2 size={32} className={styles.loadingSpinner} style={{ color: '#fff' }} />
+                    <span style={{ fontSize: '0.9rem' }}>Processando IA...</span>
+                  </>
+                ) : (
+                  <>
+                    <Camera size={32} />
+                    <span>Tirar Foto</span>
+                  </>
+                )}
+              </label>
+
+              <label 
+                className={`btn-secondary ${isProcessing ? 'disabled' : ''}`}
+                style={{ 
+                  flex: 1, 
+                  padding: '1.5rem 1rem', 
+                  fontSize: '1.1rem', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center', 
+                  gap: '8px',
+                  borderRadius: '12px',
+                  backgroundColor: '#fff9ec',
+                  color: '#b07900',
+                  border: '1px solid #f9ab00',
+                  cursor: isProcessing ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={galleryInputRef}
+                  onChange={handleCapture}
+                  disabled={isProcessing}
+                  style={{ display: 'none' }}
+                />
+                {isProcessing ? (
+                  <>
+                    <Loader2 size={32} className={styles.loadingSpinner} style={{ color: '#b07900' }} />
+                    <span style={{ fontSize: '0.9rem' }}>Aguarde...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    <span>Galeria</span>
+                  </>
+                )}
+              </label>
+            </div>
+
+            <button 
+              onClick={skipStep}
+              disabled={isProcessing}
+              style={{ 
+                marginTop: '1.5rem', 
+                background: 'none', 
+                border: 'none', 
+                color: '#6b7280', 
+                fontWeight: 600, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                width: '100%',
+                cursor: 'pointer'
+              }}
+            >
+              Pular Bloqueio <SkipForward size={16} style={{ marginLeft: 4 }} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {currentStepIndex >= steps.length && (
+        <div className={styles.formSection} style={{ marginTop: '2rem' }}>
+          {!isAlreadyClosed && (
+            <div className={styles.statusMessage} style={{ marginBottom: '2rem', backgroundColor: '#fff9ec', borderColor: '#f9ab00', color: '#b07900' }}>
+              <CheckCircle2 size={24} />
+              <span>Captura de Fim de Turno finalizada! Revise a tabela abaixo e conclua o fechamento.</span>
+            </div>
+          )}
+          {isAlreadyClosed && (
+            <div className={styles.statusMessage} style={{ marginBottom: '2rem', backgroundColor: '#eff6ff', borderColor: '#3b82f6', color: '#1d4ed8' }}>
+              <CheckCircle2 size={24} />
+              <span>Você está visualizando a tabela de um turno já fechado. Você pode editar todos os campos abaixo livremente.</span>
+            </div>
+          )}
+
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th rowSpan={2}>Bloqueio</th>
+                <th colSpan={2}>INÍCIO DO TURNO</th>
+                <th colSpan={2}>FIM DO TURNO</th>
+                <th rowSpan={2}>Status (X)</th>
+              </tr>
+              <tr>
+                <th>Entrada (E)</th>
+                <th>Saída (S)</th>
+                <th>Entrada (E)</th>
+                <th>Saída (S)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {readings.map((r, i) => (
+                <tr key={r.turnstileId}>
+                  <td style={{ fontWeight: 600 }}>{r.turnstileId}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <input type="text" className={styles.tableInput} value={r.entryStart} onChange={e => {
+                        const nr = [...readings];
+                        nr[i].entryStart = e.target.value;
+                        setReadings(nr);
+                      }} disabled={r.isOutOfOrder} style={{ width: '60px' }} />
+                      {r.entryStartImg && <img src={r.entryStartImg} alt="Thumb" style={{ width: '28px', height: '28px', objectFit: 'cover', borderRadius: '4px' }} />}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <input type="text" className={styles.tableInput} value={r.exitStart} onChange={e => {
+                        const nr = [...readings];
+                        nr[i].exitStart = e.target.value;
+                        setReadings(nr);
+                      }} disabled={r.isOutOfOrder} style={{ width: '60px' }} />
+                      {r.exitStartImg && <img src={r.exitStartImg} alt="Thumb" style={{ width: '28px', height: '28px', objectFit: 'cover', borderRadius: '4px' }} />}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <input type="text" className={styles.tableInput} value={r.entryEnd} onChange={e => {
+                        const nr = [...readings];
+                        nr[i].entryEnd = e.target.value;
+                        setReadings(nr);
+                      }} disabled={r.isOutOfOrder} style={{ width: '60px' }} />
+                      {r.entryEndImg && <img src={r.entryEndImg} alt="Thumb" style={{ width: '28px', height: '28px', objectFit: 'cover', borderRadius: '4px', border: '2px solid #f9ab00' }} />}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <input type="text" className={styles.tableInput} value={r.exitEnd} onChange={e => {
+                        const nr = [...readings];
+                        nr[i].exitEnd = e.target.value;
+                        setReadings(nr);
+                      }} disabled={r.isOutOfOrder} style={{ width: '60px' }} />
+                      {r.exitEndImg && <img src={r.exitEndImg} alt="Thumb" style={{ width: '28px', height: '28px', objectFit: 'cover', borderRadius: '4px', border: '2px solid #f9ab00' }} />}
+                    </div>
+                  </td>
+                  <td>
+                    <input type="checkbox" className={styles.checkbox} checked={r.isOutOfOrder} onChange={e => {
+                      const nr = [...readings];
+                      nr[i].isOutOfOrder = e.target.checked;
+                      setReadings(nr);
+                    }} title="Fora de Operação (X)" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <button 
+            className={`btn-primary ${styles.submitBtn}`} 
+            onClick={handleSave} 
+            disabled={isProcessing}
+            style={{ marginTop: '2rem', backgroundColor: '#f9ab00' }}
+          >
+            Confirmar e Fechar Turno
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

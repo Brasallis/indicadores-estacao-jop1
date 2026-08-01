@@ -1,0 +1,193 @@
+/* CSS para um documento estilo A4 Formal */
+
+.documentBody {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screenControls {
+  width: 21cm;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.backBtn, .printBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backBtn {
+  background-color: white;
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.printBtn {
+  background-color: var(--brand-orange);
+  color: white;
+}
+
+.a4Paper {
+  background-color: white;
+  width: 21cm;
+  min-height: 29.7cm;
+  padding: 2cm;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  color: #000;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.header {
+  text-align: center;
+  border-bottom: 2px solid #000;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.header p {
+  font-size: 1rem;
+  margin: 0;
+  color: #333;
+}
+
+.metadataGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #000;
+  padding: 1rem;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.metaLabel {
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.metaValue {
+  font-size: 1.1rem;
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 1rem;
+  padding-bottom: 0.2rem;
+}
+
+.auditTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 3rem;
+  font-size: 0.95rem;
+}
+
+.auditTable th, .auditTable td {
+  border: 1px solid #000;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.auditTable th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.signatureSection {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.signatureBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40%;
+}
+
+.signatureLine {
+  width: 100%;
+  border-top: 1px solid #000;
+  margin-bottom: 0.5rem;
+}
+
+.signatureName {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.signatureRole {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.footer {
+  margin-top: 3rem;
+  font-size: 0.8rem;
+  color: #777;
+  text-align: center;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+/* Esconder os botões ao imprimir o documento */
+@media print {
+  @page {
+    margin: 1cm;
+  }
+  body, html {
+    background-color: white !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+  .documentBody {
+    padding: 0 !important;
+    background-color: white !important;
+    display: block !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .screenControls {
+    display: none !important;
+  }
+  .a4Paper {
+    box-shadow: none !important;
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+}
