@@ -193,3 +193,66 @@
     print-color-adjust: exact;
   }
 }
+
+/* RESPONSIVIDADE MOBILE */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .documentPage {
+    padding: 1.5rem 1rem;
+  }
+  
+  .docHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .docTitle {
+    text-align: center;
+  }
+  
+  .docTitle h1 {
+    font-size: 1.3rem;
+  }
+  
+  .docMetadata {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .kpiRow {
+    flex-direction: column;
+    border: 1px solid #202124;
+  }
+  
+  .kpiBox {
+    border-right: none;
+    border-bottom: 1px solid #202124;
+  }
+  
+  .kpiBox:last-child {
+    border-bottom: none;
+  }
+  
+  .docTable {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .signatureSection {
+    flex-direction: column;
+    gap: 3rem;
+    margin-top: 3rem;
+    align-items: center;
+  }
+  
+  .signatureLine {
+    width: 80%;
+  }
+}

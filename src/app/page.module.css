@@ -63,20 +63,7 @@
   background: #ea580c;
 }
 
-@media (prefers-color-scheme: dark) {
-  .menuBtn {
-    color: var(--gray-200);
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-  .menuBtn:hover {
-    background: rgba(0, 0, 0, 0.4);
-  }
-  .menuBtnActive {
-    color: white;
-  }
-}
-
+/* Dark mode hover removido */
 
 /* Global KPIs */
 .kpiGrid {
@@ -131,6 +118,7 @@
   border-radius: 8px;
   border: 1px solid #dadce0;
   padding: 1.5rem;
+  overflow-x: auto;
 }
 
 .sectionTitle {
@@ -278,11 +266,7 @@
   text-align: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  .cardTitle {
-    color: var(--gray-50);
-  }
-}
+/* Dark mode removido */
 
 .filterSection {
   background: white;

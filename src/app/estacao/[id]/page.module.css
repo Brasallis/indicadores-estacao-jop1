@@ -218,7 +218,7 @@
   background-color: #fff;
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .historyTable {

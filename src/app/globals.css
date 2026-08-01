@@ -24,15 +24,7 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: var(--gray-900);
-    --foreground: var(--gray-50);
-    
-    /* Slightly adjusted brand colors for dark mode visibility */
-    --brand-orange: #FF7B3D;
-  }
-}
+/* Dark mode removido para manter identidade visual corporativa 100% consistente */
 
 * {
   box-sizing: border-box;
@@ -68,12 +60,7 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-@media (prefers-color-scheme: dark) {
-  .glass {
-    background: rgba(31, 41, 55, 0.7); /* gray-800 with opacity */
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-}
+/* Dark mode removido para o glass */
 
 /* Buttons */
 .btn-primary {
@@ -118,10 +105,4 @@ a {
   box-shadow: 0 0 0 3px rgba(255, 103, 32, 0.2);
 }
 
-@media (prefers-color-scheme: dark) {
-  .input-premium {
-    background-color: var(--gray-800);
-    border-color: var(--gray-700);
-    color: var(--gray-50);
-  }
-}
+/* Dark mode removido para os inputs */
