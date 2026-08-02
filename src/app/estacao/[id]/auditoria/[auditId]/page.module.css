@@ -271,10 +271,18 @@
   }
   body, html {
     background-color: white !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    display: block !important;
   }
   .documentBody {
     padding: 0 !important;
     background-color: white !important;
+    display: block !important; /* REMOVE O FLEX QUE IMPEDE A QUEBRA DE PÁGINAS */
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
   }
   .screenControls {
     display: none !important;
@@ -285,6 +293,10 @@
     margin: 0 !important;
     width: 100% !important;
     min-width: 100% !important;
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
   }
   .auditTable th, .auditTable td {
     border: 1px solid #000;
