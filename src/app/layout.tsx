@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Linha 6 - Controle de Bloqueios",
   description: "Sistema de Controle de Fluxo e Bloqueios da Linha 6 Laranja",
+  icons: {
+    icon: "/logo-linha-uni.png",
+  },
 };
 
 export default function RootLayout({
