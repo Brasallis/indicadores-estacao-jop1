@@ -136,36 +136,16 @@ export default function FormalAuditDocument() {
                   <td><strong>{r.turnstileId}</strong></td>
                   
                   {/* Inicio Entrada */}
-                  <td>
-                    <div className={styles.cellFlex}>
-                      <span>{r.isOutOfOrder && r.entryStart === null ? '-' : r.entryStart}</span>
-                      {r.entryStartImg && <img src={r.entryStartImg} alt="Thumb" className={styles.thumbImg} />}
-                    </div>
-                  </td>
+                  <td>{r.isOutOfOrder && r.entryStart === null ? '-' : r.entryStart}</td>
                   
                   {/* Inicio Saida */}
-                  <td>
-                    <div className={styles.cellFlex}>
-                      <span>{r.isOutOfOrder && r.exitStart === null ? '-' : r.exitStart}</span>
-                      {r.exitStartImg && <img src={r.exitStartImg} alt="Thumb" className={styles.thumbImg} />}
-                    </div>
-                  </td>
+                  <td>{r.isOutOfOrder && r.exitStart === null ? '-' : r.exitStart}</td>
                   
                   {/* Fim Entrada */}
-                  <td>
-                    <div className={styles.cellFlex}>
-                      <span>{r.isOutOfOrder ? 'X' : r.entryEnd}</span>
-                      {r.entryEndImg && <img src={r.entryEndImg} alt="Thumb" className={styles.thumbImg} style={{ borderColor: '#EA580C' }} />}
-                    </div>
-                  </td>
+                  <td>{r.isOutOfOrder ? 'X' : r.entryEnd}</td>
                   
                   {/* Fim Saida */}
-                  <td>
-                    <div className={styles.cellFlex}>
-                      <span>{r.isOutOfOrder ? 'X' : r.exitEnd}</span>
-                      {r.exitEndImg && <img src={r.exitEndImg} alt="Thumb" className={styles.thumbImg} style={{ borderColor: '#EA580C' }} />}
-                    </div>
-                  </td>
+                  <td>{r.isOutOfOrder ? 'X' : r.exitEnd}</td>
                   
                   <td><strong style={{ color: '#10B981' }}>{diffEntry}</strong></td>
                   <td><strong style={{ color: '#3B82F6' }}>{diffExit}</strong></td>
@@ -187,6 +167,65 @@ export default function FormalAuditDocument() {
             </tr>
           </tfoot>
         </table>
+
+        {/* Anexo Fotográfico */}
+        <div style={{ marginTop: '3rem', pageBreakBefore: 'always' }}>
+          <h2 className={styles.sectionTitle} style={{ borderBottom: '2px solid #EA580C', paddingBottom: '0.5rem' }}>Anexo: Evidências Fotográficas</h2>
+          
+          <div className={styles.imageGridList}>
+            {auditData.readings.map((r: any) => {
+              if (!r.entryStartImg && !r.exitStartImg && !r.entryEndImg && !r.exitEndImg) return null;
+              
+              return (
+                <div key={r.turnstileId} className={styles.imageCardGroup}>
+                  <h4 style={{ margin: '0 0 1rem 0', color: '#0F172A', fontSize: '1.2rem', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.5rem' }}>
+                    Bloqueio: {r.turnstileId} {r.isOutOfOrder ? '(Inoperante)' : ''}
+                  </h4>
+                  
+                  <div className={styles.imageGrid}>
+                    {/* Imagens do Início */}
+                    <div className={styles.imageColumn}>
+                      <strong style={{ fontSize: '0.9rem', color: '#475569', marginBottom: '0.5rem', display: 'block' }}>INÍCIO DO TURNO</strong>
+                      <div className={styles.imageRow}>
+                        {r.entryStartImg && (
+                          <div className={styles.imageWrapper}>
+                            <div className={styles.imageLabel}>Entrada</div>
+                            <img src={r.entryStartImg} alt="Entrada Início" className={styles.largeImage} />
+                          </div>
+                        )}
+                        {r.exitStartImg && (
+                          <div className={styles.imageWrapper}>
+                            <div className={styles.imageLabel}>Saída</div>
+                            <img src={r.exitStartImg} alt="Saída Início" className={styles.largeImage} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Imagens do Fim */}
+                    <div className={styles.imageColumn}>
+                      <strong style={{ fontSize: '0.9rem', color: '#EA580C', marginBottom: '0.5rem', display: 'block' }}>FIM DO TURNO</strong>
+                      <div className={styles.imageRow}>
+                        {r.entryEndImg && (
+                          <div className={styles.imageWrapper}>
+                            <div className={styles.imageLabel} style={{ color: '#EA580C' }}>Entrada</div>
+                            <img src={r.entryEndImg} alt="Entrada Fim" className={styles.largeImage} />
+                          </div>
+                        )}
+                        {r.exitEndImg && (
+                          <div className={styles.imageWrapper}>
+                            <div className={styles.imageLabel} style={{ color: '#EA580C' }}>Saída</div>
+                            <img src={r.exitEndImg} alt="Saída Fim" className={styles.largeImage} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         <div className={styles.signatureSection}>
           <div className={styles.signatureBox}>
