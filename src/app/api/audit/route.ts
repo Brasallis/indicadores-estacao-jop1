@@ -4,6 +4,12 @@ import { prisma } from '@/lib/prisma';
 export const runtime = "nodejs";
 export const maxDuration = 60; // Permite tempo maior para salvar base64 grandes
 
+const parseReading = (val: any) => {
+  if (val === null || val === undefined || val === '') return null;
+  const parsed = parseInt(String(val).replace(/\D/g, ''), 10); // Remove tudo que não for número
+  return isNaN(parsed) ? null : parsed;
+};
+
 export async function POST(request: Request) {
   try {
     const data = await request.json();
@@ -34,26 +40,30 @@ export async function POST(request: Request) {
         startTime,
         endTime,
         operatorName,
-          readings: {
-            create: readings.map((r: any) => ({
-              turnstileId: r.turnstileId,
-              entryStart: r.entryStart === '' ? null : parseInt(r.entryStart),
-              entryStartImg: r.entryStartImg || null,
-              entryEnd: r.entryEnd === '' ? null : parseInt(r.entryEnd),
-              entryEndImg: r.entryEndImg || null,
-              exitStart: r.exitStart === '' ? null : parseInt(r.exitStart),
-              exitStartImg: r.exitStartImg || null,
-              exitEnd: r.exitEnd === '' ? null : parseInt(r.exitEnd),
-              exitEndImg: r.exitEndImg || null,
-              isOutOfOrder: r.isOutOfOrder
-            }))
-          }
+        readings: {
+          create: readings.map((r: any) => ({
+            turnstileId: r.turnstileId,
+            entryStart: parseReading(r.entryStart),
+            entryStartImg: r.entryStartImg || null,
+            entryEnd: parseReading(r.entryEnd),
+            entryEndImg: r.entryEndImg || null,
+            exitStart: parseReading(r.exitStart),
+            exitStartImg: r.exitStartImg || null,
+            exitEnd: parseReading(r.exitEnd),
+            exitEndImg: r.exitEndImg || null,
+            isOutOfOrder: Boolean(r.isOutOfOrder)
+          }))
+        }
       }
     });
 
     return NextResponse.json({ success: true, auditId: audit.id }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao salvar auditoria no DB:', error);
-    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Erro Interno do Servidor', 
+      details: error?.message || String(error)
+    }, { status: 500 });
   }
 }
