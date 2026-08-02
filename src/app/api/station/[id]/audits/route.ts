@@ -33,7 +33,10 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
       return await prisma.shiftAudit.findMany({
         where: whereClause,
         include: { readings: true },
-        orderBy: { date: 'desc' }
+        orderBy: [
+          { date: 'desc' },
+          { createdAt: 'desc' }
+        ]
       });
     };
 

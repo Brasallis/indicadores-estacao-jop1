@@ -529,14 +529,7 @@ export default function StationDashboard() {
                         style={{
                           backgroundColor: '#e6f4ea', 
                           color: '#137333', 
-                          border: '1px solid #ceead6',
-                          padding: '4px 12px',
-                          borderRadius: '16px',
-                          fontWeight: 'bold',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          width: 'auto'
+                          borderColor: '#ceead6'
                         }} 
                         onClick={() => router.push(`/estacao/${stationId}/auditoria/${audit.id}/editar`)} 
                         title="Clique para realizar a leitura de fechamento do turno"
@@ -546,7 +539,7 @@ export default function StationDashboard() {
                     ) : (
                       <button 
                         className={styles.actionBtn} 
-                        style={{backgroundColor: '#EFF6FF', color: '#3B82F6', border: '1px solid #BFDBFE'}} 
+                        style={{backgroundColor: '#EFF6FF', color: '#3B82F6', borderColor: '#BFDBFE'}} 
                         onClick={() => router.push(`/estacao/${stationId}/auditoria/${audit.id}/editar`)} 
                         title="Editar Fechamento"
                       >
@@ -556,7 +549,7 @@ export default function StationDashboard() {
                     <button className={styles.actionBtn} onClick={() => router.push(`/estacao/${stationId}/auditoria/${audit.id}`)} title="Ver A4">
                       <FileText size={16} />
                     </button>
-                    <button className={styles.actionBtn} style={{backgroundColor: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA'}} onClick={() => handleDelete(audit.id)} title="Excluir">
+                    <button className={styles.actionBtn} style={{backgroundColor: '#FEF2F2', color: '#DC2626', borderColor: '#FECACA'}} onClick={() => handleDelete(audit.id)} title="Excluir">
                       <Trash2 size={16} />
                     </button>
                   </td>
