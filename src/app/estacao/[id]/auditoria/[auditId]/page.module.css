@@ -10,7 +10,8 @@
 }
 
 .screenControls {
-  width: 21cm;
+  width: 100%;
+  max-width: 21cm;
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
@@ -40,7 +41,8 @@
 
 .a4Paper {
   background-color: white;
-  width: 21cm;
+  width: 100%;
+  max-width: 21cm;
   min-height: 29.7cm;
   padding: 2cm;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -189,5 +191,37 @@
     padding: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
+}
+
+@media (max-width: 768px) {
+  .documentBody {
+    padding: 1rem;
+  }
+  .screenControls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .screenControls button {
+    justify-content: center;
+  }
+  .a4Paper {
+    padding: 1rem;
+    min-height: auto;
+  }
+  .metadataGrid {
+    grid-template-columns: 1fr;
+  }
+  .auditTable {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .signatureSection {
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .signatureBox {
+    width: 100%;
   }
 }
+

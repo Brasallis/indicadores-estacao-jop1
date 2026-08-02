@@ -162,26 +162,19 @@ export default function EditAudit() {
       // 1. Aplicar Marca D'água
       const watermarkedFile = await processImageWithWatermark(file, currentStep);
 
-      // 2. Fazer Upload
-      const formData = new FormData();
-      formData.append('file', watermarkedFile);
-      
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const uploadResult = await uploadRes.json();
-      const savedUrl = uploadResult.success ? uploadResult.url : null;
-
-      // 3. Converter para Base64 e enviar para a IA
+      // Converter para Base64 e enviar para a IA
       const reader = new FileReader();
       reader.readAsDataURL(watermarkedFile);
       reader.onload = async () => {
-        const base64Data = reader.result?.toString().split(',')[1];
-        if (!base64Data) {
+        const fullBase64String = reader.result?.toString();
+        const base64Data = fullBase64String?.split(',')[1];
+        
+        if (!base64Data || !fullBase64String) {
           setIsProcessing(false);
           return;
         }
+
+        const savedUrl = fullBase64String;
 
         try {
           const res = await fetch('/api/ocr-display', {
