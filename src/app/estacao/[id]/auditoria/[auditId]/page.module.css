@@ -1,17 +1,20 @@
-/* CSS para um documento estilo A4 Formal */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+/* Fundo padrão da tela, o documento em si é branco e fixo no meio */
 .documentBody {
-  background-color: #f3f4f6;
+  background-color: #f1f5f9;
   min-height: 100vh;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-family: 'Inter', sans-serif;
+  overflow-x: auto; /* Permite rolar a tela se a janela for menor que o A4 */
 }
 
 .screenControls {
   width: 100%;
-  max-width: 21cm;
+  max-width: 21cm; /* Mantém sempre a largura do A4 */
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
@@ -26,107 +29,150 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: 'Inter', sans-serif;
 }
 
 .backBtn {
   background-color: white;
-  color: var(--gray-700);
-  border: 1px solid var(--gray-300);
+  color: #334155;
+  border: 1px solid #cbd5e1;
 }
 
 .printBtn {
-  background-color: var(--brand-orange);
+  background-color: #EA580C; /* Laranja Corporativo */
   color: white;
 }
 
+/* O Documento A4 sempre será estático, imitando o papel físico */
 .a4Paper {
   background-color: white;
-  width: 100%;
-  max-width: 21cm;
+  width: 21cm;
+  min-width: 21cm; /* Impede encolhimento no celular */
   min-height: 29.7cm;
   padding: 2cm;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  color: #000;
-  font-family: 'Times New Roman', Times, serif;
+  color: #1e293b;
 }
 
 .header {
   text-align: center;
-  border-bottom: 2px solid #000;
-  padding-bottom: 1rem;
-  margin-bottom: 2rem;
+  border-bottom: 4px solid #EA580C;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .header h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .header p {
   font-size: 1rem;
   margin: 0;
-  color: #333;
+  color: #475569;
+  font-weight: 500;
 }
 
 .metadataGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
-  border: 1px solid #000;
-  padding: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: #f8fafc;
 }
 
 .metaItem {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
 }
 
 .metaLabel {
-  font-size: 0.85rem;
-  font-weight: bold;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  color: #555;
+  color: #64748b;
+  letter-spacing: 0.5px;
 }
 
 .metaValue {
   font-size: 1.1rem;
+  color: #0f172a;
+  font-weight: 600;
 }
 
 .sectionTitle {
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  border-bottom: 1px solid #ccc;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  border-bottom: 2px solid #e2e8f0;
   margin-bottom: 1rem;
-  padding-bottom: 0.2rem;
+  padding-bottom: 0.5rem;
 }
 
+/* Tabela Estilizada */
 .auditTable {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 3rem;
   font-size: 0.95rem;
+  margin-bottom: 3rem;
+  page-break-inside: auto; /* Permite quebrar a tabela se passar da página */
+}
+
+.auditTable tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
 }
 
 .auditTable th, .auditTable td {
-  border: 1px solid #000;
-  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  padding: 0.75rem 0.5rem;
   text-align: center;
+  vertical-align: middle;
 }
 
 .auditTable th {
-  background-color: #f0f0f0;
-  font-weight: bold;
+  background-color: #f1f5f9;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  font-size: 0.85rem;
 }
 
+.auditTable thead th {
+  border-bottom: 2px solid #EA580C; /* Destaque na tabela */
+}
+
+/* Estrutura híbrida na célula da tabela (Número + Thumb) */
+.cellFlex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.thumbImg {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+}
+
+/* Assinaturas */
 .signatureSection {
-  margin-top: 4rem;
+  margin-top: 5rem;
   display: flex;
   justify-content: space-around;
+  page-break-inside: avoid;
 }
 
 .signatureBox {
@@ -138,137 +184,62 @@
 
 .signatureLine {
   width: 100%;
-  border-top: 1px solid #000;
+  border-top: 1px solid #1e293b;
   margin-bottom: 0.5rem;
 }
 
 .signatureName {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 1rem;
+  color: #0f172a;
 }
 
 .signatureRole {
   font-size: 0.85rem;
-  color: #555;
+  color: #64748b;
 }
 
 .footer {
   margin-top: 3rem;
   font-size: 0.8rem;
-  color: #777;
+  color: #94a3b8;
   text-align: center;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #e2e8f0;
   padding-top: 1rem;
 }
 
-/* Esconder os botões ao imprimir o documento */
+/* Configuração rigorosa de impressão (PDF) */
 @media print {
   @page {
     margin: 1cm;
+    size: A4;
   }
   body, html {
     background-color: white !important;
-    height: auto !important;
-    min-height: auto !important;
-    overflow: visible !important;
   }
   .documentBody {
     padding: 0 !important;
     background-color: white !important;
-    display: block !important;
-    min-height: auto !important;
-    height: auto !important;
-    overflow: visible !important;
   }
   .screenControls {
     display: none !important;
   }
   .a4Paper {
     box-shadow: none !important;
-    width: 100% !important;
-    min-height: auto !important;
-    height: auto !important;
     padding: 0 !important;
     margin: 0 !important;
-    overflow: visible !important;
-}
-
-@media (max-width: 768px) {
-  .documentBody {
-    padding: 0;
-    background-color: white;
+    width: 100% !important;
+    min-width: 100% !important;
   }
-  .screenControls {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-    margin: 0;
-    background-color: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
+  .auditTable th, .auditTable td {
+    border: 1px solid #000;
   }
-  .screenControls button {
-    justify-content: center;
-    width: 100%;
-    padding: 0.75rem;
+  .auditTable thead th {
+    border-bottom: 2px solid #000;
   }
-  .a4Paper {
-    padding: 1.5rem 1rem;
-    min-height: auto;
-    border: none;
-    box-shadow: none;
-    margin: 0;
-  }
-  .metadataGrid {
-    grid-template-columns: 1fr;
-  }
-  .auditTable {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  .signatureSection {
-    flex-direction: column;
-    gap: 3rem;
-  }
-  .signatureBox {
-    width: 100%;
-  }
-  .imageGrid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  .imageRow {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+  /* Forçar backgrounds a aparecerem no PDF */
+  .a4Paper * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
-
-.imageGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.imageColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.imageRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-@media print {
-  .imageGrid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .imageRow {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-
-

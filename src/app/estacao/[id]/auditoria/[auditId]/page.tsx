@@ -5,8 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Printer } from 'lucide-react';
 import styles from './page.module.css';
 
-// Mock removido, consumindo dados da API
-
 export default function FormalAuditDocument() {
   const params = useParams();
   const router = useRouter();
@@ -73,8 +71,9 @@ export default function FormalAuditDocument() {
 
       <div className={styles.a4Paper}>
         <div className={styles.header}>
-          <h1>Concessionária Linha Uni</h1>
-          <p>Documento Oficial de Auditoria de Fluxo - Linha 6 Laranja</p>
+          <p style={{ color: '#EA580C', fontWeight: 700, marginBottom: '0.2rem' }}>CONCESSIONÁRIA LINHA UNIVERSIDADE</p>
+          <h1>Relatório Oficial de Auditoria de Fluxo</h1>
+          <p>Linha 6 - Laranja</p>
         </div>
 
         <div className={styles.metadataGrid}>
@@ -96,11 +95,11 @@ export default function FormalAuditDocument() {
           </div>
         </div>
 
-        {/* Resumo Gerencial / História dos Dados */}
-        <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '8px', borderLeft: '4px solid #F97316' }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#1E293B' }}>Resumo do Turno</h3>
+        {/* Resumo Gerencial */}
+        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #EA580C', marginBottom: '2rem' }}>
+          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#0f172a' }}>Resumo do Turno</h3>
           <p style={{ margin: 0, color: '#475569', lineHeight: '1.5' }}>
-            Neste turno, compreendido entre {auditData.startTime} e {auditData.endTime}, a estação {stationName} registrou um fluxo total de <strong>{totalEntries} entradas</strong> e <strong>{totalExits} saídas</strong>. 
+            Neste turno, compreendido entre {auditData.startTime} e {auditData.endTime}, a estação {stationName} registrou um fluxo total de <strong style={{color: '#10B981'}}>{totalEntries} entradas</strong> e <strong style={{color: '#3B82F6'}}>{totalExits} saídas</strong>. 
             {inoperantes > 0 
               ? ` Foram identificados ${inoperantes} bloqueio(s) inoperante(s) ou isolado(s). ` 
               : ' Todos os bloqueios operaram normalmente durante o período. '}
@@ -108,7 +107,7 @@ export default function FormalAuditDocument() {
           </p>
         </div>
 
-        <h2 className={styles.sectionTitle}>Tabela de Contagem Diferencial</h2>
+        <h2 className={styles.sectionTitle}>Tabela de Contagem Diferencial (Comprovada)</h2>
         <table className={styles.auditTable}>
           <thead>
             <tr>
@@ -135,20 +134,53 @@ export default function FormalAuditDocument() {
               return (
                 <tr key={r.turnstileId}>
                   <td><strong>{r.turnstileId}</strong></td>
-                  <td>{r.isOutOfOrder && r.entryStart === null ? '-' : r.entryStart}</td>
-                  <td>{r.isOutOfOrder && r.exitStart === null ? '-' : r.exitStart}</td>
-                  <td>{r.isOutOfOrder ? 'X' : r.entryEnd}</td>
-                  <td>{r.isOutOfOrder ? 'X' : r.exitEnd}</td>
-                  <td><strong>{diffEntry}</strong></td>
-                  <td><strong>{diffExit}</strong></td>
-                  <td>{r.isOutOfOrder ? 'Inoperante' : 'Ativo'}</td>
+                  
+                  {/* Inicio Entrada */}
+                  <td>
+                    <div className={styles.cellFlex}>
+                      <span>{r.isOutOfOrder && r.entryStart === null ? '-' : r.entryStart}</span>
+                      {r.entryStartImg && <img src={r.entryStartImg} alt="Thumb" className={styles.thumbImg} />}
+                    </div>
+                  </td>
+                  
+                  {/* Inicio Saida */}
+                  <td>
+                    <div className={styles.cellFlex}>
+                      <span>{r.isOutOfOrder && r.exitStart === null ? '-' : r.exitStart}</span>
+                      {r.exitStartImg && <img src={r.exitStartImg} alt="Thumb" className={styles.thumbImg} />}
+                    </div>
+                  </td>
+                  
+                  {/* Fim Entrada */}
+                  <td>
+                    <div className={styles.cellFlex}>
+                      <span>{r.isOutOfOrder ? 'X' : r.entryEnd}</span>
+                      {r.entryEndImg && <img src={r.entryEndImg} alt="Thumb" className={styles.thumbImg} style={{ borderColor: '#EA580C' }} />}
+                    </div>
+                  </td>
+                  
+                  {/* Fim Saida */}
+                  <td>
+                    <div className={styles.cellFlex}>
+                      <span>{r.isOutOfOrder ? 'X' : r.exitEnd}</span>
+                      {r.exitEndImg && <img src={r.exitEndImg} alt="Thumb" className={styles.thumbImg} style={{ borderColor: '#EA580C' }} />}
+                    </div>
+                  </td>
+                  
+                  <td><strong style={{ color: '#10B981' }}>{diffEntry}</strong></td>
+                  <td><strong style={{ color: '#3B82F6' }}>{diffExit}</strong></td>
+                  <td>
+                    {r.isOutOfOrder ? (
+                      <span style={{ color: '#EF4444', fontWeight: 'bold' }}>Inop.</span>
+                    ) : 'Ativo'}
+                  </td>
                 </tr>
               )
             })}
           </tbody>
           <tfoot>
-            <tr style={{ backgroundColor: '#F1F5F9', borderTop: '2px solid #CBD5E1' }}>
-              <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold' }}>TOTAL CONSOLIDADO DO TURNO:</td>
+            <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #cbd5e1' }}>
+              <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem' }}>TOTAL CONSOLIDADO DO TURNO:</td>
               <td style={{ fontSize: '1.1rem', color: '#10B981' }}><strong>{totalEntries}</strong></td>
               <td style={{ fontSize: '1.1rem', color: '#3B82F6' }}><strong>{totalExits}</strong></td>
               <td></td>
@@ -156,69 +188,7 @@ export default function FormalAuditDocument() {
           </tfoot>
         </table>
 
-        {/* Anexo Fotográfico */}
-        <div style={{ marginTop: '3rem', pageBreakBefore: 'always' }}>
-          <h2 className={styles.sectionTitle} style={{ borderBottom: '2px solid #E2E8F0', paddingBottom: '0.5rem' }}>Anexo: Evidências Fotográficas (Marca d'água OCR)</h2>
-          <p style={{ color: '#64748B', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            As imagens abaixo contêm metadados embutidos de geolocalização da estação, horário da captura e identificação do auditor logado.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            {auditData.readings.map((r: any) => {
-              if (!r.entryStartImg && !r.exitStartImg && !r.entryEndImg && !r.exitEndImg) return null;
-              
-              return (
-                <div key={r.turnstileId} style={{ border: '1px solid #E2E8F0', borderRadius: '8px', padding: '1rem', backgroundColor: '#FAFAFA' }}>
-                  <h4 style={{ margin: '0 0 1rem 0', color: '#0F172A', fontSize: '1.1rem', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.5rem' }}>
-                    Bloqueio: {r.turnstileId} {r.isOutOfOrder ? '(Inoperante)' : ''}
-                  </h4>
-                  
-                  <div className={styles.imageGrid}>
-                    {/* Imagens do Início */}
-                    <div className={styles.imageColumn}>
-                      <strong style={{ fontSize: '0.85rem', color: '#475569' }}>FOTOS: INÍCIO DO TURNO</strong>
-                      <div className={styles.imageRow}>
-                        {r.entryStartImg && (
-                          <div style={{ flex: 1, border: '1px solid #CBD5E1', padding: '4px', background: '#FFF' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#F97316', textAlign: 'center', marginBottom: '2px' }}>Entrada (Início)</div>
-                            <img src={r.entryStartImg} alt="Entrada Início" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                          </div>
-                        )}
-                        {r.exitStartImg && (
-                          <div style={{ flex: 1, border: '1px solid #CBD5E1', padding: '4px', background: '#FFF' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#2563EB', textAlign: 'center', marginBottom: '2px' }}>Saída (Início)</div>
-                            <img src={r.exitStartImg} alt="Saída Início" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Imagens do Fim */}
-                    <div className={styles.imageColumn}>
-                      <strong style={{ fontSize: '0.85rem', color: '#475569' }}>FOTOS: FIM DO TURNO</strong>
-                      <div className={styles.imageRow}>
-                        {r.entryEndImg && (
-                          <div style={{ flex: 1, border: '1px solid #CBD5E1', padding: '4px', background: '#FFF' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#F97316', textAlign: 'center', marginBottom: '2px' }}>Entrada (Fim)</div>
-                            <img src={r.entryEndImg} alt="Entrada Fim" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                          </div>
-                        )}
-                        {r.exitEndImg && (
-                          <div style={{ flex: 1, border: '1px solid #CBD5E1', padding: '4px', background: '#FFF' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#2563EB', textAlign: 'center', marginBottom: '2px' }}>Saída (Fim)</div>
-                            <img src={r.exitEndImg} alt="Saída Fim" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className={styles.signatureSection} style={{ marginTop: '4rem', pageBreakInside: 'avoid' }}>
+        <div className={styles.signatureSection}>
           <div className={styles.signatureBox}>
             <div className={styles.signatureLine}></div>
             <span className={styles.signatureName}>{auditData.operatorName || 'Auditor'}</span>
@@ -232,7 +202,7 @@ export default function FormalAuditDocument() {
           </div>
         </div>
 
-        <div className={styles.footer} style={{ marginTop: '2rem' }}>
+        <div className={styles.footer}>
           Documento gerado eletronicamente pelo Sistema Integrado Antigravity.<br />
           Data de Impressão: {new Date().toLocaleString('pt-BR')}
         </div>
