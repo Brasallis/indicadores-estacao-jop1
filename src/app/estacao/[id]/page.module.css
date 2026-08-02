@@ -274,6 +274,45 @@
   }
   .filterBar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 1rem;
   }
 }
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  .actions button {
+    width: 100%;
+    justify-content: center;
+  }
+  .title {
+    font-size: 1.6rem;
+  }
+  .filterGroup {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .filterInput, .filterSelect {
+    width: 100%;
+  }
+  .historyTable th, .historyTable td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+  .actionBtn {
+    flex-wrap: wrap;
+  }
+}
+
