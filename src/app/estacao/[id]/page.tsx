@@ -522,7 +522,7 @@ export default function StationDashboard() {
                   <td style={{ color: '#f9ab00', fontWeight: 'bold' }}>{audit.totalEntries}</td>
                   <td style={{ color: '#1a73e8', fontWeight: 'bold' }}>{audit.totalExits}</td>
                   <td><strong>{audit.totalEntries + audit.totalExits}</strong></td>
-                  <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <td className={styles.actionCell}>
                     {!audit.isClosed ? (
                       <button 
                         className={styles.actionBtn} 

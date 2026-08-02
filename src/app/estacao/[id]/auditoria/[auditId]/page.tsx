@@ -173,11 +173,11 @@ export default function FormalAuditDocument() {
                     Bloqueio: {r.turnstileId} {r.isOutOfOrder ? '(Inoperante)' : ''}
                   </h4>
                   
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className={styles.imageGrid}>
                     {/* Imagens do Início */}
-                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                    <div className={styles.imageColumn}>
                       <strong style={{ fontSize: '0.85rem', color: '#475569' }}>FOTOS: INÍCIO DO TURNO</strong>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div className={styles.imageRow}>
                         {r.entryStartImg && (
                           <div style={{ flex: 1, border: '1px solid #CBD5E1', padding: '4px', background: '#FFF' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#F97316', textAlign: 'center', marginBottom: '2px' }}>Entrada (Início)</div>
@@ -194,9 +194,9 @@ export default function FormalAuditDocument() {
                     </div>
 
                     {/* Imagens do Fim */}
-                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                    <div className={styles.imageColumn}>
                       <strong style={{ fontSize: '0.85rem', color: '#475569' }}>FOTOS: FIM DO TURNO</strong>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div className={styles.imageRow}>
                         {r.entryEndImg && (
                           <div style={{ flex: 1, border: '1px solid #CBD5E1', padding: '4px', background: '#FFF' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#F97316', textAlign: 'center', marginBottom: '2px' }}>Entrada (Fim)</div>

@@ -223,5 +223,26 @@
   .signatureBox {
     width: 100%;
   }
+  .imageGrid {
+    grid-template-columns: 1fr;
+  }
 }
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.imageColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.imageRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
 
