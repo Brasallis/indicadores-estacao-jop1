@@ -88,22 +88,41 @@ export default function RegisterOCR() {
         // Draw original image
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Add Watermark overlay background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        const barHeight = Math.max(80, height * 0.12);
-        ctx.fillRect(0, height - barHeight, width, barHeight);
+        // Gradient overlay instead of solid block for better readability (Google style)
+        const overlayHeight = height * 0.20;
+        const gradient = ctx.createLinearGradient(0, height - overlayHeight, 0, height);
+        gradient.addColorStop(0, 'rgba(0,0,0,0)');
+        gradient.addColorStop(0.3, 'rgba(0,0,0,0.5)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0.9)');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, height - overlayHeight, width, overlayHeight);
 
-        // Draw text
+        // Typography settings
+        const paddingX = Math.max(16, width * 0.04);
+        const paddingY = Math.max(16, height * 0.04);
+
+        // Main line (Turnstile and time)
+        const mainFontSize = Math.max(16, height * 0.035);
+        ctx.font = `600 ${mainFontSize}px "Inter", "Roboto", "Segoe UI", sans-serif`;
         ctx.fillStyle = '#ffffff';
-        const fontSize = Math.max(16, height * 0.035);
-        ctx.font = `bold ${fontSize}px sans-serif`;
         
         const timestamp = new Date().toLocaleString('pt-BR');
-        const stationName = station.name;
-        const targetDesc = `${step.turnstileId} - ${step.type === 'entry' ? 'ENTRADA' : 'SAÍDA'}`;
+        const targetDesc = `${step.turnstileId} • ${step.type === 'entry' ? 'Entrada' : 'Saída'}`;
+        const mainText = `${targetDesc}  |  ${timestamp}`;
+        
+        ctx.fillText(mainText, paddingX, height - paddingY);
 
-        ctx.fillText(`📍 ${stationName} | 👤 Op: ${operatorName}`, 20, height - barHeight + fontSize + 15);
-        ctx.fillText(`🎯 ${targetDesc} | 🕒 ${timestamp}`, 20, height - barHeight + fontSize * 2.5 + 15);
+        // Sub line (Station and operator)
+        const subFontSize = Math.max(12, height * 0.025);
+        ctx.font = `400 ${subFontSize}px "Inter", "Roboto", "Segoe UI", sans-serif`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        
+        const stationName = station.name.toUpperCase();
+        const subText = `ESTAÇÃO ${stationName} • AUDITOR: ${operatorName.toUpperCase()}`;
+        
+        // Draw sub line above main line
+        ctx.fillText(subText, paddingX, height - paddingY - mainFontSize - (height * 0.015));
 
         canvas.toBlob((blob) => {
           if (!blob) return reject('No blob');
