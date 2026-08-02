@@ -161,32 +161,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .uploadSection, .formSection {
-    background-color: var(--gray-800);
-  }
-  .label {
-    color: var(--gray-200);
-  }
-  .statusMessage {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: #34D399;
-  }
-  .table th {
-    background-color: var(--gray-900);
-    color: var(--gray-200);
-    border-color: var(--gray-700);
-  }
-  .table td {
-    border-color: var(--gray-700);
-  }
-  .tableInput {
-    background-color: var(--gray-900);
-    border-color: var(--gray-600);
-    color: white;
-  }
-}
-
+/* Fundo escuro removido para manter o padrao claro corporativo */
 @media (max-width: 768px) {
   .container {
     padding: 1rem;

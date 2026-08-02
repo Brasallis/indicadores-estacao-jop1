@@ -281,7 +281,7 @@ export default function RegisterOCR() {
           <div style={{ 
             backgroundColor: '#fff', 
             borderRadius: '16px', 
-            padding: '2rem', 
+            padding: '1.25rem', 
             boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
             textAlign: 'center',
             maxWidth: '500px',
