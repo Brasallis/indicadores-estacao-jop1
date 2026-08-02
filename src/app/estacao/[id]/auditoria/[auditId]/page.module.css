@@ -235,24 +235,40 @@
   }
   .imageGrid {
     grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .imageRow {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }
 
 .imageGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
 .imageColumn {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .imageRow {
-  display: flex;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
+
+@media print {
+  .imageGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .imageRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 
 
