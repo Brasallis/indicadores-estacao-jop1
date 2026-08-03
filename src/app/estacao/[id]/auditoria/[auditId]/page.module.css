@@ -310,3 +310,46 @@
     print-color-adjust: exact !important;
   }
 }
+
+/* Responsividade para Celulares (Visualização de Tela) */
+@media screen and (max-width: 794px) {
+  .documentBody {
+    padding: 0.5rem;
+  }
+  .a4Paper {
+    width: 100%;
+    min-width: 0;
+    padding: 1rem;
+    box-shadow: none;
+    border-radius: 8px;
+  }
+  .metadataGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 2rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+  }
+  .auditTable {
+    margin-bottom: 0; /* Remove a margem interna pois o wrapper já tem */
+  }
+  .imageGrid {
+    grid-template-columns: 1fr;
+  }
+  .imageRow {
+    grid-template-columns: 1fr;
+  }
+  .signatureSection {
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+  }
+  .signatureBox {
+    width: 100%;
+  }
+}

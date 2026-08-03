@@ -109,65 +109,67 @@ export default function FormalAuditDocument() {
         </div>
 
         <h2 className={styles.sectionTitle}>Tabela de Contagem Diferencial (Comprovada)</h2>
-        <table className={styles.auditTable}>
-          <thead>
-            <tr>
-              <th rowSpan={2}>Bloqueio</th>
-              <th colSpan={2}>Início do Turno</th>
-              <th colSpan={2}>Fim do Turno</th>
-              <th colSpan={2}>Fluxo Líquido (Real)</th>
-              <th rowSpan={2}>Status</th>
-            </tr>
-            <tr>
-              <th>Entrada (E)</th>
-              <th>Saída (S)</th>
-              <th>Entrada (E)</th>
-              <th>Saída (S)</th>
-              <th>Entradas</th>
-              <th>Saídas</th>
-            </tr>
-          </thead>
-          <tbody>
-            {auditData.readings.map((r: any) => {
-              const diffEntry = (!r.isOutOfOrder && r.entryEnd !== null && r.entryStart !== null) ? r.entryEnd - r.entryStart : 0;
-              const diffExit = (!r.isOutOfOrder && r.exitEnd !== null && r.exitStart !== null) ? r.exitEnd - r.exitStart : 0;
-              
-              return (
-                <tr key={r.turnstileId}>
-                  <td><strong>{r.turnstileId}</strong></td>
-                  
-                  {/* Inicio Entrada */}
-                  <td>{r.isOutOfOrder && r.entryStart === null ? '-' : r.entryStart}</td>
-                  
-                  {/* Inicio Saida */}
-                  <td>{r.isOutOfOrder && r.exitStart === null ? '-' : r.exitStart}</td>
-                  
-                  {/* Fim Entrada */}
-                  <td>{r.isOutOfOrder ? 'X' : r.entryEnd}</td>
-                  
-                  {/* Fim Saida */}
-                  <td>{r.isOutOfOrder ? 'X' : r.exitEnd}</td>
-                  
-                  <td><strong style={{ color: '#10B981' }}>{diffEntry}</strong></td>
-                  <td><strong style={{ color: '#3B82F6' }}>{diffExit}</strong></td>
-                  <td>
-                    {r.isOutOfOrder ? (
-                      <span style={{ color: '#EF4444', fontWeight: 'bold' }}>Inop.</span>
-                    ) : 'Ativo'}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-          <tfoot>
-            <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #cbd5e1' }}>
-              <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem' }}>TOTAL CONSOLIDADO DO TURNO:</td>
-              <td style={{ fontSize: '1.1rem', color: '#10B981' }}><strong>{totalEntries}</strong></td>
-              <td style={{ fontSize: '1.1rem', color: '#3B82F6' }}><strong>{totalExits}</strong></td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
+        <div className={styles.tableWrapper}>
+          <table className={styles.auditTable}>
+            <thead>
+              <tr>
+                <th rowSpan={2}>Bloqueio</th>
+                <th colSpan={2}>Início do Turno</th>
+                <th colSpan={2}>Fim do Turno</th>
+                <th colSpan={2}>Fluxo do Turno (Líquido)</th>
+                <th rowSpan={2}>Status Final</th>
+              </tr>
+              <tr>
+                <th>Entrada</th>
+                <th>Saída</th>
+                <th>Entrada</th>
+                <th>Saída</th>
+                <th>Entradas</th>
+                <th>Saídas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {auditData.readings.map((r: any) => {
+                const diffEntry = (r.entryEnd !== null && r.entryStart !== null) ? r.entryEnd - r.entryStart : 0;
+                const diffExit = (r.exitEnd !== null && r.exitStart !== null) ? r.exitEnd - r.exitStart : 0;
+                
+                return (
+                  <tr key={r.turnstileId} style={{ backgroundColor: r.isOutOfOrder ? '#fef2f2' : 'transparent' }}>
+                    <td><strong>{r.turnstileId}</strong></td>
+                    
+                    {/* Inicio Entrada */}
+                    <td>{r.isOutOfOrder && r.entryStart === null ? '-' : r.entryStart}</td>
+                    
+                    {/* Inicio Saida */}
+                    <td>{r.isOutOfOrder && r.exitStart === null ? '-' : r.exitStart}</td>
+                    
+                    {/* Fim Entrada */}
+                    <td>{r.isOutOfOrder ? 'X' : r.entryEnd}</td>
+                    
+                    {/* Fim Saida */}
+                    <td>{r.isOutOfOrder ? 'X' : r.exitEnd}</td>
+                    
+                    <td><strong style={{ color: '#10B981' }}>{diffEntry}</strong></td>
+                    <td><strong style={{ color: '#3B82F6' }}>{diffExit}</strong></td>
+                    <td>
+                      {r.isOutOfOrder ? (
+                        <span style={{ color: '#EF4444', fontWeight: 'bold' }}>Inop.</span>
+                      ) : 'Ativo'}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+            <tfoot>
+              <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #cbd5e1' }}>
+                <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem' }}>TOTAL CONSOLIDADO DO TURNO:</td>
+                <td style={{ fontSize: '1.1rem', color: '#10B981' }}><strong>{totalEntries}</strong></td>
+                <td style={{ fontSize: '1.1rem', color: '#3B82F6' }}><strong>{totalExits}</strong></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
 
         {/* Anexo Fotográfico */}
         <div style={{ marginTop: '3rem', pageBreakBefore: 'always' }}>
