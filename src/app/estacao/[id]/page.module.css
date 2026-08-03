@@ -297,14 +297,38 @@
   }
   .actions {
     width: 100%;
-    flex-direction: column;
+    flex-direction: row; /* Coloca os botões um ao lado do outro */
+    gap: 0.5rem;
   }
   .actions button {
-    width: 100%;
+    flex: 1; /* Faz os botões dividirem o espaço igualmente */
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
     justify-content: center;
   }
   .title {
     font-size: 1.6rem;
+  }
+  /* Ajuste dos cards de KPI para celular (Scroll Horizontal) */
+  .kpiContainer {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    /* Esconde barra de rolagem mas mantém função */
+    scrollbar-width: none;
+  }
+  .kpiContainer::-webkit-scrollbar {
+    display: none;
+  }
+  .statCard {
+    min-width: 220px;
+    flex: 0 0 auto;
+    padding: 1rem;
+  }
+  .statValue {
+    font-size: 1.8rem;
   }
   .filterGroup {
     flex-direction: column;
