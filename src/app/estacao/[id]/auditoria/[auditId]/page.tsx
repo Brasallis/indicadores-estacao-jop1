@@ -69,7 +69,7 @@ export default function FormalAuditDocument() {
         </button>
       </div>
 
-      <div className={styles.a4Paper}>
+      <div className={styles.a4Paper} translate="no">
         <div className={styles.header} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
           <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '60px', objectFit: 'contain', marginBottom: '0.5rem' }} />
           <p style={{ color: '#EA580C', fontWeight: 700, marginBottom: '0.2rem' }}>CONCESSIONÁRIA LINHA UNIVERSIDADE</p>
