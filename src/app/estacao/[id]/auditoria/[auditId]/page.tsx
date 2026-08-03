@@ -70,10 +70,11 @@ export default function FormalAuditDocument() {
       </div>
 
       <div className={styles.a4Paper}>
-        <div className={styles.header}>
+        <div className={styles.header} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+          <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '60px', objectFit: 'contain', marginBottom: '0.5rem' }} />
           <p style={{ color: '#EA580C', fontWeight: 700, marginBottom: '0.2rem' }}>CONCESSIONÁRIA LINHA UNIVERSIDADE</p>
-          <h1>Relatório Oficial de Auditoria de Fluxo</h1>
-          <p>Linha 6 - Laranja</p>
+          <h1 style={{ margin: '0 0 0.5rem 0' }}>Relatório Oficial de Auditoria de Fluxo</h1>
+          <p style={{ margin: 0 }}>Linha 6 - Laranja</p>
         </div>
 
         <div className={styles.metadataGrid}>
