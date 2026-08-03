@@ -209,6 +209,10 @@ export default function RegisterOCR() {
     setCurrentStepIndex(prev => prev + 1);
   };
 
+  const prevStep = () => {
+    setCurrentStepIndex(prev => Math.max(0, prev - 1));
+  };
+
   const handleSave = async () => {
     try {
       setIsProcessing(true);
@@ -268,9 +272,9 @@ export default function RegisterOCR() {
                 }} 
               >
                 <option value="" disabled>Selecione o Turno</option>
-                <option value="Manhã">Manhã (06:00 - 14:00)</option>
-                <option value="Tarde">Tarde (14:00 - 22:00)</option>
-                <option value="Noite">Noite (22:00 - 06:00)</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Noite">Noite</option>
               </select>
             </div>
             <div className={styles.inputGroup}>
@@ -401,24 +405,45 @@ export default function RegisterOCR() {
               </label>
             </div>
 
-            <button 
-              onClick={skipStep}
-              disabled={isProcessing}
-              style={{ 
-                marginTop: '1.5rem', 
-                background: 'none', 
-                border: 'none', 
-                color: '#6b7280', 
-                fontWeight: 600, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                width: '100%',
-                cursor: 'pointer'
-              }}
-            >
-              Pular esta Foto <SkipForward size={16} style={{ marginLeft: 4 }} />
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button 
+                onClick={prevStep}
+                disabled={isProcessing || currentStepIndex === 0}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: '#6b7280', 
+                  fontWeight: 600, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  flex: 1,
+                  cursor: (isProcessing || currentStepIndex === 0) ? 'not-allowed' : 'pointer',
+                  opacity: (isProcessing || currentStepIndex === 0) ? 0.5 : 1
+                }}
+              >
+                <ArrowLeft size={16} style={{ marginRight: 4 }} /> Voltar Foto
+              </button>
+              <div style={{ width: '1px', backgroundColor: '#e5e7eb' }}></div>
+              <button 
+                onClick={skipStep}
+                disabled={isProcessing}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: '#6b7280', 
+                  fontWeight: 600, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  flex: 1,
+                  cursor: isProcessing ? 'not-allowed' : 'pointer',
+                  opacity: isProcessing ? 0.5 : 1
+                }}
+              >
+                Pular Foto <SkipForward size={16} style={{ marginLeft: 4 }} />
+              </button>
+            </div>
           </div>
         </div>
       )}
