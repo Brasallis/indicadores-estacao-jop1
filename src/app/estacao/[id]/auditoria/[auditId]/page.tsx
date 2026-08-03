@@ -88,7 +88,7 @@ export default function FormalAuditDocument() {
           </div>
           <div className={styles.metaItem}>
             <span className={styles.metaLabel}>Data / Turno</span>
-            <span className={styles.metaValue}>{new Date(auditData.date).toLocaleDateString('pt-BR')} - {auditData.startTime} às {auditData.endTime}</span>
+            <span className={styles.metaValue}>{new Date(auditData.date).toLocaleDateString('pt-BR')} - {auditData.endTime ? `${auditData.startTime} às ${auditData.endTime}` : auditData.startTime}</span>
           </div>
           <div className={styles.metaItem}>
             <span className={styles.metaLabel}>Responsável (Auditor)</span>

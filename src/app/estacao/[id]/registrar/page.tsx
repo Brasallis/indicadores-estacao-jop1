@@ -201,6 +201,7 @@ export default function RegisterOCR() {
       };
     } catch (err) {
       console.error(err);
+      alert('Seu dispositivo encontrou um erro ao processar a imagem. Tente uma foto mais leve ou use o botão Pular.');
       setIsProcessing(false);
     }
   };
@@ -266,9 +267,8 @@ export default function RegisterOCR() {
                 value={shift} 
                 onChange={e => {
                   setShift(e.target.value);
-                  if (e.target.value === 'Manhã') { setStartTime('06:00'); setEndTime('14:00'); }
-                  else if (e.target.value === 'Tarde') { setStartTime('14:00'); setEndTime('22:00'); }
-                  else if (e.target.value === 'Noite') { setStartTime('22:00'); setEndTime('06:00'); }
+                  setStartTime(e.target.value);
+                  setEndTime('');
                 }} 
               >
                 <option value="" disabled>Selecione o Turno</option>

@@ -22,11 +22,11 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
 
       if (shift && shift !== 'Todos') {
         if (shift === 'Manhã') {
-          whereClause.startTime = { gte: '06:00', lt: '14:00' };
+          whereClause.OR = [ { startTime: 'Manhã' }, { startTime: { gte: '06:00', lt: '14:00' } } ];
         } else if (shift === 'Tarde') {
-          whereClause.startTime = { gte: '14:00', lt: '22:00' };
+          whereClause.OR = [ { startTime: 'Tarde' }, { startTime: { gte: '14:00', lt: '22:00' } } ];
         } else if (shift === 'Noite') {
-          whereClause.startTime = { gte: '22:00' }; 
+          whereClause.OR = [ { startTime: 'Noite' }, { startTime: { gte: '22:00' } } ];
         }
       }
 
