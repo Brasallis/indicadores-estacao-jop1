@@ -5,6 +5,16 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Printer } from 'lucide-react';
 import styles from './page.module.css';
 
+const getFlow = (start: number | null, end: number | null): number => {
+  if (start === null || end === null) return 0;
+  if (end >= start) return end - start;
+  const diff = start - end;
+  if (diff > 9000000) return end + 10000000 - start;
+  if (diff > 900000) return end + 1000000 - start;
+  if (diff > 90000) return end + 100000 - start;
+  return diff; 
+};
+
 export default function FormalAuditDocument() {
   const params = useParams();
   const router = useRouter();
@@ -44,8 +54,8 @@ export default function FormalAuditDocument() {
     if (r.isOutOfOrder) {
       inoperantes++;
     } else {
-      const diffEntry = (r.entryEnd !== null && r.entryStart !== null) ? r.entryEnd - r.entryStart : 0;
-      const diffExit = (r.exitEnd !== null && r.exitStart !== null) ? r.exitEnd - r.exitStart : 0;
+      const diffEntry = getFlow(r.entryStart, r.entryEnd);
+      const diffExit = getFlow(r.exitStart, r.exitEnd);
       
       totalEntries += diffEntry;
       totalExits += diffExit;
@@ -130,8 +140,8 @@ export default function FormalAuditDocument() {
             </thead>
             <tbody>
               {auditData.readings.map((r: any) => {
-                const diffEntry = (r.entryEnd !== null && r.entryStart !== null) ? r.entryEnd - r.entryStart : 0;
-                const diffExit = (r.exitEnd !== null && r.exitStart !== null) ? r.exitEnd - r.exitStart : 0;
+                const diffEntry = getFlow(r.entryStart, r.entryEnd);
+                const diffExit = getFlow(r.exitStart, r.exitEnd);
                 
                 return (
                   <tr key={r.turnstileId} style={{ backgroundColor: r.isOutOfOrder ? '#fef2f2' : 'transparent' }}>

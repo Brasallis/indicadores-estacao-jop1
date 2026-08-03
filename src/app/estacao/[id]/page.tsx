@@ -7,6 +7,17 @@ import { ComposedChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Toolti
 import { getStationById } from '@/lib/stations';
 import styles from './page.module.css';
 
+// Função auxiliar para calcular o fluxo corrigindo rollovers e inversão de digitação
+const getFlow = (start: number | null, end: number | null): number => {
+  if (start === null || end === null) return 0;
+  if (end >= start) return end - start;
+  const diff = start - end;
+  if (diff > 9000000) return end + 10000000 - start;
+  if (diff > 900000) return end + 1000000 - start;
+  if (diff > 90000) return end + 100000 - start;
+  return diff; // Inversão de digitação
+};
+
 // Mocks removidos. Dados vêm do banco via useEffect.
 
 export default function StationDashboard() {
@@ -56,8 +67,8 @@ export default function StationDashboard() {
           let pExits = 0;
           prevAudits.forEach((pa: any) => {
             pa.readings.forEach((r: any) => {
-              if (!r.isOutOfOrder && r.entryEnd !== null && r.entryStart !== null) pEntries += (r.entryEnd - r.entryStart);
-              if (!r.isOutOfOrder && r.exitEnd !== null && r.exitStart !== null) pExits += (r.exitEnd - r.exitStart);
+              if (!r.isOutOfOrder) pEntries += getFlow(r.entryStart, r.entryEnd);
+              if (!r.isOutOfOrder) pExits += getFlow(r.exitStart, r.exitEnd);
             });
           });
           setPreviousStats({ entries: pEntries, exits: pExits });
@@ -68,11 +79,11 @@ export default function StationDashboard() {
             let tExits = 0;
             let isClosed = false;
             a.readings.forEach((r: any) => {
-              if (!r.isOutOfOrder && r.entryEnd !== null && r.entryStart !== null) {
-                tEntries += (r.entryEnd - r.entryStart);
+              if (!r.isOutOfOrder) {
+                tEntries += getFlow(r.entryStart, r.entryEnd);
               }
-              if (!r.isOutOfOrder && r.exitEnd !== null && r.exitStart !== null) {
-                tExits += (r.exitEnd - r.exitStart);
+              if (!r.isOutOfOrder) {
+                tExits += getFlow(r.exitStart, r.exitEnd);
               }
               if (r.entryEnd !== null || r.exitEnd !== null) {
                 isClosed = true;
@@ -104,11 +115,11 @@ export default function StationDashboard() {
                 if (diffMap[r.turnstileId]) {
                   if (r.isOutOfOrder) diffMap[r.turnstileId].outOfOrder = true;
                   
-                  if (!r.isOutOfOrder && r.entryEnd !== null && r.entryStart !== null) {
-                    diffMap[r.turnstileId].entry += (r.entryEnd - r.entryStart);
+                  if (!r.isOutOfOrder) {
+                    diffMap[r.turnstileId].entry += getFlow(r.entryStart, r.entryEnd);
                   }
-                  if (!r.isOutOfOrder && r.exitEnd !== null && r.exitStart !== null) {
-                    diffMap[r.turnstileId].exit += (r.exitEnd - r.exitStart);
+                  if (!r.isOutOfOrder) {
+                    diffMap[r.turnstileId].exit += getFlow(r.exitStart, r.exitEnd);
                   }
                 }
              });
@@ -119,10 +130,10 @@ export default function StationDashboard() {
              a.readings.forEach((r: any) => {
                 if (diffMap[r.turnstileId] && !r.isOutOfOrder) {
                   if (r.entryEnd !== null && r.entryStart !== null) {
-                    diffMap[r.turnstileId].prevEntry += (r.entryEnd - r.entryStart);
+                    diffMap[r.turnstileId].prevEntry += getFlow(r.entryStart, r.entryEnd);
                   }
                   if (r.exitEnd !== null && r.exitStart !== null) {
-                    diffMap[r.turnstileId].prevExit += (r.exitEnd - r.exitStart);
+                    diffMap[r.turnstileId].prevExit += getFlow(r.exitStart, r.exitEnd);
                   }
                 }
              });
