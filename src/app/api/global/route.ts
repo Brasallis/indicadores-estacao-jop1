@@ -4,6 +4,16 @@ import { STATIONS } from '@/lib/stations';
 
 export const runtime = "nodejs";
 
+const getFlow = (start: number | null, end: number | null): number => {
+  if (start === null || end === null) return 0;
+  if (end >= start) return end - start;
+  const diff = start - end;
+  if (diff > 9000000) return end + 10000000 - start;
+  if (diff > 900000) return end + 1000000 - start;
+  if (diff > 90000) return end + 100000 - start;
+  return diff; 
+};
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -62,14 +72,17 @@ export async function GET(request: Request) {
          stationMetrics[sCode] = { code: sCode, entries: 0, exits: 0, broken: 0 };
       }
       
+      const isClosed = audit.readings.some(r => r.entryEnd !== null || r.exitEnd !== null);
+      if (!isClosed) return; // Ignora auditorias incompletas no global
+      
       audit.readings.forEach(r => {
         totalTurnstiles++;
         if (r.isOutOfOrder) {
           brokenTurnstiles++;
           stationMetrics[sCode].broken++;
         } else {
-          const e = (r.entryEnd ?? 0) - (r.entryStart ?? 0);
-          const x = (r.exitEnd ?? 0) - (r.exitStart ?? 0);
+          const e = getFlow(r.entryStart, r.entryEnd);
+          const x = getFlow(r.exitStart, r.exitEnd);
           totalEntries += e;
           totalExits += x;
           stationMetrics[sCode].entries += e;
@@ -111,10 +124,13 @@ export async function GET(request: Request) {
       const dayIndex = dateObj.getUTCDay(); 
       const label = weekDaysMap[dayIndex];
       
+      const isClosed = audit.readings.some(r => r.entryEnd !== null || r.exitEnd !== null);
+      if (!isClosed) return;
+
       audit.readings.forEach(r => {
         if (!r.isOutOfOrder) {
-          const e = (r.entryEnd ?? 0) - (r.entryStart ?? 0);
-          const x = (r.exitEnd ?? 0) - (r.exitStart ?? 0);
+          const e = getFlow(r.entryStart, r.entryEnd);
+          const x = getFlow(r.exitStart, r.exitEnd);
           if (dailyMap[label]) dailyMap[label].volume += (e + x);
         }
       });

@@ -66,6 +66,8 @@ export default function StationDashboard() {
           let pEntries = 0;
           let pExits = 0;
           prevAudits.forEach((pa: any) => {
+            const isClosed = pa.readings.some((r: any) => r.entryEnd !== null || r.exitEnd !== null);
+            if (!isClosed) return;
             pa.readings.forEach((r: any) => {
               if (!r.isOutOfOrder) pEntries += getFlow(r.entryStart, r.entryEnd);
               if (!r.isOutOfOrder) pExits += getFlow(r.exitStart, r.exitEnd);
@@ -111,6 +113,9 @@ export default function StationDashboard() {
           }
 
           audits.forEach((a: any) => {
+             const isClosed = a.readings.some((r: any) => r.entryEnd !== null || r.exitEnd !== null);
+             if (!isClosed) return;
+             
              a.readings.forEach((r: any) => {
                 if (diffMap[r.turnstileId]) {
                   if (r.isOutOfOrder) diffMap[r.turnstileId].outOfOrder = true;
@@ -127,6 +132,9 @@ export default function StationDashboard() {
 
           // Computar dados do mês anterior para sobreposição
           prevAudits.forEach((a: any) => {
+             const isClosed = a.readings.some((r: any) => r.entryEnd !== null || r.exitEnd !== null);
+             if (!isClosed) return;
+
              a.readings.forEach((r: any) => {
                 if (diffMap[r.turnstileId] && !r.isOutOfOrder) {
                   if (r.entryEnd !== null && r.entryStart !== null) {
@@ -150,6 +158,9 @@ export default function StationDashboard() {
           });
 
           audits.forEach((a: any) => {
+            const isClosed = a.readings.some((r: any) => r.entryEnd !== null || r.exitEnd !== null);
+            if (!isClosed) return;
+
             const dateObj = new Date(a.date);
             const dayIndex = dateObj.getUTCDay();
             const label = weekDaysMap[dayIndex];
