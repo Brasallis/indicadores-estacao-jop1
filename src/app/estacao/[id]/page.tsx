@@ -156,8 +156,8 @@ export default function StationDashboard() {
             
             a.readings.forEach((r: any) => {
               if (!r.isOutOfOrder) {
-                const e = (r.entryEnd ?? 0) - (r.entryStart ?? 0);
-                const x = (r.exitEnd ?? 0) - (r.exitStart ?? 0);
+                const e = getFlow(r.entryStart, r.entryEnd);
+                const x = getFlow(r.exitStart, r.exitEnd);
                 if (chartMap[label]) chartMap[label].volume += (e + x);
               }
             });
