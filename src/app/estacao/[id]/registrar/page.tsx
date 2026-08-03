@@ -35,7 +35,7 @@ export default function RegisterOCR() {
 
   // Wizard State (-1 = Metadados, 0 to N-1 = Fotos, N = Resumo)
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<'camera' | 'gallery' | null>(null);
 
   useEffect(() => {
     if (!date) {
@@ -135,11 +135,11 @@ export default function RegisterOCR() {
     });
   };
 
-  const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>, source: 'camera' | 'gallery') => {
     const file = event.target.files?.[0];
     if (!file || !currentStep) return;
 
-    setIsProcessing(true);
+    setIsProcessing(source);
     
     try {
       // 1. Aplicar Marca D'água (e Redimensionar agressivamente para caber no banco)
@@ -153,7 +153,7 @@ export default function RegisterOCR() {
         const base64Data = fullBase64String?.split(',')[1];
         
         if (!base64Data || !fullBase64String) {
-          setIsProcessing(false);
+          setIsProcessing(null);
           return;
         }
 
@@ -196,13 +196,13 @@ export default function RegisterOCR() {
           if (cameraInputRef.current) cameraInputRef.current.value = '';
           if (galleryInputRef.current) galleryInputRef.current.value = '';
           setCurrentStepIndex(prev => prev + 1);
-          setIsProcessing(false);
+          setIsProcessing(null);
         }
       };
     } catch (err) {
       console.error(err);
       alert('Seu dispositivo encontrou um erro ao processar a imagem. Tente uma foto mais leve ou use o botão Pular.');
-      setIsProcessing(false);
+      setIsProcessing(null);
     }
   };
 
@@ -216,7 +216,7 @@ export default function RegisterOCR() {
 
   const handleSave = async () => {
     try {
-      setIsProcessing(true);
+      setIsProcessing('camera'); // Usando camera só pra bloquear os botões na UI
       const payload = {
         stationId,
         date,
@@ -239,7 +239,7 @@ export default function RegisterOCR() {
     } catch (err) {
       console.error(err);
       alert('Erro ao salvar no banco de dados.');
-      setIsProcessing(false);
+      setIsProcessing(null);
     }
   };
 
@@ -349,14 +349,14 @@ export default function RegisterOCR() {
                   accept="image/*"
                   capture="environment"
                   ref={cameraInputRef}
-                  onChange={handleCapture}
-                  disabled={isProcessing}
+                  onChange={(e) => handleCapture(e, 'camera')}
+                  disabled={isProcessing !== null}
                   style={{ display: 'none' }}
                 />
-                {isProcessing ? (
+                {isProcessing === 'camera' ? (
                   <>
                     <Loader2 size={32} className={styles.loadingSpinner} />
-                    <span style={{ fontSize: '0.9rem' }}>Processando IA...</span>
+                    <span style={{ fontSize: '0.9rem' }}>Processando...</span>
                   </>
                 ) : (
                   <>
@@ -387,14 +387,14 @@ export default function RegisterOCR() {
                   type="file"
                   accept="image/*"
                   ref={galleryInputRef}
-                  onChange={handleCapture}
-                  disabled={isProcessing}
+                  onChange={(e) => handleCapture(e, 'gallery')}
+                  disabled={isProcessing !== null}
                   style={{ display: 'none' }}
                 />
-                {isProcessing ? (
+                {isProcessing === 'gallery' ? (
                   <>
                     <Loader2 size={32} className={styles.loadingSpinner} />
-                    <span style={{ fontSize: '0.9rem' }}>Aguarde...</span>
+                    <span style={{ fontSize: '0.9rem' }}>Processando...</span>
                   </>
                 ) : (
                   <>
@@ -408,7 +408,7 @@ export default function RegisterOCR() {
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
               <button 
                 onClick={prevStep}
-                disabled={isProcessing || currentStepIndex === 0}
+                disabled={isProcessing !== null || currentStepIndex === 0}
                 style={{ 
                   background: 'none', 
                   border: 'none', 
@@ -418,8 +418,8 @@ export default function RegisterOCR() {
                   alignItems: 'center', 
                   justifyContent: 'center', 
                   flex: 1,
-                  cursor: (isProcessing || currentStepIndex === 0) ? 'not-allowed' : 'pointer',
-                  opacity: (isProcessing || currentStepIndex === 0) ? 0.5 : 1
+                  cursor: (isProcessing !== null || currentStepIndex === 0) ? 'not-allowed' : 'pointer',
+                  opacity: (isProcessing !== null || currentStepIndex === 0) ? 0.5 : 1
                 }}
               >
                 <ArrowLeft size={16} style={{ marginRight: 4 }} /> Voltar Foto
@@ -427,7 +427,7 @@ export default function RegisterOCR() {
               <div style={{ width: '1px', backgroundColor: '#e5e7eb' }}></div>
               <button 
                 onClick={skipStep}
-                disabled={isProcessing}
+                disabled={isProcessing !== null}
                 style={{ 
                   background: 'none', 
                   border: 'none', 
@@ -437,8 +437,8 @@ export default function RegisterOCR() {
                   alignItems: 'center', 
                   justifyContent: 'center', 
                   flex: 1,
-                  cursor: isProcessing ? 'not-allowed' : 'pointer',
-                  opacity: isProcessing ? 0.5 : 1
+                  cursor: isProcessing !== null ? 'not-allowed' : 'pointer',
+                  opacity: isProcessing !== null ? 0.5 : 1
                 }}
               >
                 Pular Foto <SkipForward size={16} style={{ marginLeft: 4 }} />
@@ -509,7 +509,7 @@ export default function RegisterOCR() {
           <button 
             className={`btn-primary ${styles.submitBtn}`} 
             onClick={handleSave} 
-            disabled={isProcessing}
+            disabled={isProcessing !== null}
             style={{ marginTop: '2rem' }}
           >
             Confirmar e Abrir Turno

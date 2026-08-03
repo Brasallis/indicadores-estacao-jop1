@@ -36,7 +36,7 @@ export default function EditAudit() {
 
   // Wizard State (-1 = Metadados, 0 to N-1 = Fotos, N = Resumo)
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<'camera' | 'gallery' | null>(null);
   const [isAlreadyClosed, setIsAlreadyClosed] = useState(false);
 
   useEffect(() => {
@@ -171,11 +171,11 @@ export default function EditAudit() {
     });
   };
 
-  const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCapture = async (event: React.ChangeEvent<HTMLInputElement>, source: 'camera' | 'gallery') => {
     const file = event.target.files?.[0];
     if (!file || !currentStep) return;
 
-    setIsProcessing(true);
+    setIsProcessing(source);
     
     try {
       // 1. Aplicar Marca D'água
@@ -189,7 +189,7 @@ export default function EditAudit() {
         const base64Data = fullBase64String?.split(',')[1];
         
         if (!base64Data || !fullBase64String) {
-          setIsProcessing(false);
+          setIsProcessing(null);
           return;
         }
 
@@ -231,12 +231,13 @@ export default function EditAudit() {
           if (cameraInputRef.current) cameraInputRef.current.value = '';
           if (galleryInputRef.current) galleryInputRef.current.value = '';
           setCurrentStepIndex(prev => prev + 1);
-          setIsProcessing(false);
+          setIsProcessing(null);
         }
       };
     } catch (err) {
       console.error(err);
-      setIsProcessing(false);
+      alert('Seu dispositivo encontrou um erro ao processar a imagem. Tente uma foto mais leve ou use o botão Pular.');
+      setIsProcessing(null);
     }
   };
 
@@ -246,7 +247,7 @@ export default function EditAudit() {
 
   const handleSave = async () => {
     try {
-      setIsProcessing(true);
+      setIsProcessing('camera');
       const payload = {
         date,
         startTime,
@@ -267,8 +268,8 @@ export default function EditAudit() {
       router.push(`/estacao/${stationId}`);
     } catch (err) {
       console.error(err);
-      alert('Erro ao atualizar no banco de dados.');
-      setIsProcessing(false);
+      alert('Erro ao salvar no banco de dados.');
+      setIsProcessing(null);
     }
   };
 
@@ -383,14 +384,14 @@ export default function EditAudit() {
                   accept="image/*"
                   capture="environment"
                   ref={cameraInputRef}
-                  onChange={handleCapture}
-                  disabled={isProcessing}
+                  onChange={(e) => handleCapture(e, 'camera')}
+                  disabled={isProcessing !== null}
                   style={{ display: 'none' }}
                 />
-                {isProcessing ? (
+                {isProcessing === 'camera' ? (
                   <>
                     <Loader2 size={32} className={styles.loadingSpinner} style={{ color: '#fff' }} />
-                    <span style={{ fontSize: '0.9rem' }}>Processando IA...</span>
+                    <span style={{ fontSize: '0.9rem' }}>Processando...</span>
                   </>
                 ) : (
                   <>
@@ -411,9 +412,9 @@ export default function EditAudit() {
                   alignItems: 'center', 
                   gap: '8px',
                   borderRadius: '12px',
-                  backgroundColor: '#fff9ec',
-                  color: '#b07900',
-                  border: '1px solid #f9ab00',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
                   cursor: isProcessing ? 'not-allowed' : 'pointer'
                 }}
               >
@@ -421,14 +422,14 @@ export default function EditAudit() {
                   type="file"
                   accept="image/*"
                   ref={galleryInputRef}
-                  onChange={handleCapture}
-                  disabled={isProcessing}
+                  onChange={(e) => handleCapture(e, 'gallery')}
+                  disabled={isProcessing !== null}
                   style={{ display: 'none' }}
                 />
-                {isProcessing ? (
+                {isProcessing === 'gallery' ? (
                   <>
-                    <Loader2 size={32} className={styles.loadingSpinner} style={{ color: '#b07900' }} />
-                    <span style={{ fontSize: '0.9rem' }}>Aguarde...</span>
+                    <Loader2 size={32} className={styles.loadingSpinner} style={{ color: '#374151' }} />
+                    <span style={{ fontSize: '0.9rem' }}>Processando...</span>
                   </>
                 ) : (
                   <>
@@ -441,7 +442,7 @@ export default function EditAudit() {
 
             <button 
               onClick={skipStep}
-              disabled={isProcessing}
+              disabled={isProcessing !== null}
               style={{ 
                 marginTop: '1.5rem', 
                 background: 'none', 
@@ -452,7 +453,8 @@ export default function EditAudit() {
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 width: '100%',
-                cursor: 'pointer'
+                cursor: isProcessing !== null ? 'not-allowed' : 'pointer',
+                opacity: isProcessing !== null ? 0.5 : 1
               }}
             >
               Pular Bloqueio <SkipForward size={16} style={{ marginLeft: 4 }} />
@@ -550,7 +552,7 @@ export default function EditAudit() {
           <button 
             className={`btn-primary ${styles.submitBtn}`} 
             onClick={handleSave} 
-            disabled={isProcessing}
+            disabled={isProcessing !== null}
             style={{ marginTop: '2rem', backgroundColor: '#f9ab00' }}
           >
             Confirmar e Fechar Turno
