@@ -161,8 +161,6 @@ export default function RegisterOCR() {
 
         const savedUrl = fullBase64String; // Vamos salvar a string completa no BD para renderizar depois
 
-        const savedUrl = fullBase64String;
-
         const newReadings = [...readings];
         if (currentStep.type === 'entry') {
           newReadings[currentStep.readingIndex].entryStartImg = savedUrl;

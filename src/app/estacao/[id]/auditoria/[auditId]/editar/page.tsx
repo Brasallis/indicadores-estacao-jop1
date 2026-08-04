@@ -197,8 +197,6 @@ export default function EditAudit() {
 
         const savedUrl = fullBase64String;
 
-        const savedUrl = fullBase64String;
-
         const newReadings = [...readings];
         if (currentStep.type === 'entry') {
           newReadings[currentStep.readingIndex].entryEndImg = savedUrl;
