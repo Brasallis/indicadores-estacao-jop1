@@ -118,7 +118,8 @@ export default function FormalAuditDocument() {
                   <div className={styles.summaryBox}>
                     <h3>Resumo do Turno</h3>
                     <p>
-                      Neste turno, compreendido entre <strong>{auditData.startTime} e {auditData.endTime}</strong>, a estação <strong>{stationName}</strong> registrou um fluxo total de <strong style={{color: '#10B981'}}>{totalEntries} entradas</strong> e <strong style={{color: '#EF4444'}}>{totalExits} saídas</strong>. 
+                      Neste turno, compreendido entre <strong>{auditData.startTime} e {auditData.endTime}</strong>, a estação <strong>{stationName}</strong> registrou <strong style={{color: '#10B981'}}>{totalEntries} entradas</strong> e <strong style={{color: '#EF4444'}}>{totalExits} saídas</strong>. 
+                      <strong style={{ color: '#0f172a' }}> O fluxo total foi de {totalEntries + totalExits} passageiros.</strong>
                       {inoperantes > 0 
                         ? ` Foram identificados ${inoperantes} bloqueio(s) inoperante(s). ` 
                         : ' Todos os bloqueios operaram normalmente. '}
@@ -184,6 +185,11 @@ export default function FormalAuditDocument() {
                   <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem', color: '#334155', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.05em' }}>TOTAL CONSOLIDADO DO TURNO:</td>
                   <td style={{ fontSize: '1.1rem', color: '#10B981' }}><strong>{totalEntries}</strong></td>
                   <td style={{ fontSize: '1.1rem', color: '#EF4444' }}><strong>{totalExits}</strong></td>
+                  <td></td>
+                </tr>
+                <tr style={{ backgroundColor: '#f1f5f9', borderTop: '2px solid #cbd5e1' }}>
+                  <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem', color: '#0f172a', textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>FLUXO TOTAL (ENTRADAS + SAÍDAS):</td>
+                  <td colSpan={2} style={{ fontSize: '1.2rem', color: '#0f172a', textAlign: 'center' }}><strong>{totalEntries + totalExits}</strong></td>
                   <td></td>
                 </tr>
               </tfoot>
