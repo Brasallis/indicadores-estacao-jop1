@@ -89,6 +89,12 @@ Remova os pontos do valor final. Se você não conseguir encontrar um número le
 
   } catch (error: any) {
     console.error('Erro na integração com IA:', error);
+    
+    // Se for um erro de limite da cota do Gemini (429 Too Many Requests)
+    if (error.message && error.message.includes('429')) {
+      return NextResponse.json({ success: false, error: 'RATE_LIMIT', details: error.message }, { status: 429 });
+    }
+
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

@@ -196,18 +196,33 @@ export default function EditAudit() {
         const savedUrl = fullBase64String;
 
         try {
-          const res = await fetch('/api/ocr-display', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              imageBase64: base64Data, 
-              mimeType: 'image/jpeg',
-              expectedTurnstile: currentStep.turnstileId
-            })
-          });
-          const result = await res.json();
+          let retryCount = 0;
+          let success = false;
+          let result: any = null;
+
+          while (retryCount < 6 && !success) {
+            const res = await fetch('/api/ocr-display', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                imageBase64: base64Data, 
+                mimeType: 'image/jpeg',
+                expectedTurnstile: currentStep.turnstileId
+              })
+            });
+            
+            if (res.status === 429) {
+              console.warn("Fila ativada: Aguardando 10 segundos devido ao limite do Gemini...");
+              await new Promise(resolve => setTimeout(resolve, 10000));
+              retryCount++;
+              continue;
+            }
+
+            result = await res.json();
+            success = true;
+          }
           
-          if (result.success && result.data) {
+          if (success && result && result.success && result.data) {
             const val = result.data.value;
             const newReadings = [...readings];
             
@@ -224,6 +239,8 @@ export default function EditAudit() {
             }
 
             setReadings(newReadings);
+          } else if (!success) {
+            alert('A IA está sobrecarregada no momento. Por favor, digite o número manualmente nesta catraca.');
           }
         } catch (e) {
           console.error(e);
