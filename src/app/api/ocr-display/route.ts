@@ -83,18 +83,21 @@ Remova os pontos do valor final. Se você não conseguir encontrar um número le
       return NextResponse.json({ success: true, data: jsonParsed });
 
     } catch (aiError: any) {
+      if (aiError.message && aiError.message.includes('429')) {
+        throw new Error(`Falha crítica na IA: ${aiError.message}`); // Passa o erro silenciosamente para o catch de fora
+      }
       console.error("⚠️ Erro fatal no Gemini:", aiError);
       throw new Error(`Falha crítica na IA: ${aiError.message}`);
     }
 
   } catch (error: any) {
-    console.error('Erro na integração com IA:', error);
-    
     // Se for um erro de limite da cota do Gemini (429 Too Many Requests)
     if (error.message && error.message.includes('429')) {
+      console.warn('⚠️ Limite de requisições do Gemini (429) atingido. A fila do frontend vai reprocessar em 10s.');
       return NextResponse.json({ success: false, error: 'RATE_LIMIT', details: error.message }, { status: 429 });
     }
 
+    console.error('Erro na integração com IA:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
