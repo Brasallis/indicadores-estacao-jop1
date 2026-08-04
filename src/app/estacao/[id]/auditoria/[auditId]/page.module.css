@@ -270,13 +270,14 @@
 /* Configuração rigorosa de impressão (PDF) */
 @media print {
   @page {
-    margin: 1.5cm; /* Retorna a margem nativa para que a tabela não cole no topo da folha 2 */
+    margin: 0; /* Remove header/footer do navegador */
     size: A4;
   }
   
   .signaturePage {
     page-break-before: always;
-    height: 25cm; /* Força a página de assinatura a ter a altura de um A4 */
+    padding-top: 2cm;
+    height: 100vh; /* Ocupa a página inteira na impressão */
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -302,7 +303,7 @@
   .a4Paper {
     box-sizing: border-box !important;
     box-shadow: none !important;
-    padding: 0 !important; /* Margem controlada pelo @page agora */
+    padding: 1.5cm !important; /* Cria a margem manualmente já que @page está 0 */
     margin: 0 auto !important;
     width: 100% !important;
     min-width: 100% !important;

@@ -184,7 +184,7 @@ export default function FormalAuditDocument() {
         </div>
 
         {/* Anexo Fotográfico */}
-        <div style={{ marginTop: '3rem', pageBreakBefore: 'always' }}>
+        <div style={{ marginTop: '3rem', pageBreakBefore: 'always', paddingTop: '1.5cm' }}>
           <h2 className={styles.sectionTitle} style={{ borderBottom: '2px solid #EA580C', paddingBottom: '0.5rem' }}>Anexo: Evidências Fotográficas</h2>
           
           <div className={styles.imageGridList}>
@@ -256,10 +256,10 @@ export default function FormalAuditDocument() {
               <span className={styles.signatureRole}>Gerência de Estação</span>
             </div>
           </div>
-        </div>
-
-        <div className={styles.footer}>
-         Data de Impressão: {new Date().toLocaleString('pt-BR')}
+          
+          <div className={styles.footer}>
+            Data de Impressão: {new Date().toLocaleString('pt-BR')}
+          </div>
         </div>
       </div>
     </div>
