@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Camera, CheckCircle2, ChevronRight, SkipForward } from 'lucide-react';
 import { getStationById, generateInitialReadings } from '@/lib/stations';
-import { extractTurnstileValue } from '@/lib/ocr';
 import styles from './page.module.css';
 
 interface Step {
@@ -158,14 +157,22 @@ export default function RegisterOCR() {
           return;
         }
 
-        const savedUrl = fullBase64String;
+        const savedUrl = fullBase64String; // Vamos salvar a string completa no BD para renderizar depois
 
         try {
-          // Roda o Tesseract local (offline)
-          const result = await extractTurnstileValue(watermarkedFile);
+          const res = await fetch('/api/ocr-display', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              imageBase64: base64Data, 
+              mimeType: 'image/jpeg',
+              expectedTurnstile: currentStep.turnstileId
+            })
+          });
+          const result = await res.json();
           
-          if (result) {
-            const val = result.value;
+          if (result.success && result.data) {
+            const val = result.data.value;
             const newReadings = [...readings];
             
             if (currentStep.type === 'entry') {
@@ -176,14 +183,14 @@ export default function RegisterOCR() {
               newReadings[currentStep.readingIndex].exitStartImg = savedUrl;
             }
 
-            if (result.isOutOfOrder) {
+            if (result.data.isOutOfOrder) {
               newReadings[currentStep.readingIndex].isOutOfOrder = true;
             }
 
             setReadings(newReadings);
           }
         } catch (e) {
-          console.error("Erro ao rodar OCR local:", e);
+          console.error(e);
         } finally {
           // Avança o passo limpando os inputs
           if (cameraInputRef.current) cameraInputRef.current.value = '';
