@@ -255,8 +255,7 @@ export default function FormalAuditDocument() {
         </div>
 
         <div className={styles.footer}>
-          Documento gerado eletronicamente pelo Sistema Integrado Antigravity.<br />
-          Data de Impressão: {new Date().toLocaleString('pt-BR')}
+         Data de Impressão: {new Date().toLocaleString('pt-BR')}
         </div>
       </div>
     </div>
