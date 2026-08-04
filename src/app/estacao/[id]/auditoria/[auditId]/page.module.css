@@ -118,12 +118,16 @@
 }
 
 /* Tabela Estilizada */
+.tableWrapper {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
 .auditTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
   margin-bottom: 3rem;
-  page-break-inside: auto; /* Permite quebrar a tabela se passar da página */
 }
 
 .auditTable tr {

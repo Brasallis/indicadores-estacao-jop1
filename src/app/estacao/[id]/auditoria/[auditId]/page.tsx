@@ -107,7 +107,7 @@ export default function FormalAuditDocument() {
         </div>
 
         {/* Resumo Gerencial */}
-        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #EA580C', marginBottom: '2rem' }}>
+        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #EA580C', marginBottom: '2rem', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
           <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#0f172a' }}>Resumo do Turno</h3>
           <p style={{ margin: 0, color: '#475569', lineHeight: '1.5' }}>
             Neste turno, compreendido entre {auditData.startTime} e {auditData.endTime}, a estação {stationName} registrou um fluxo total de <strong style={{color: '#10B981'}}>{totalEntries} entradas</strong> e <strong style={{color: '#3B82F6'}}>{totalExits} saídas</strong>. 
