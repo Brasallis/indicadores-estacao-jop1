@@ -35,7 +35,9 @@ export default function RegisterOCR() {
 
   // Wizard State (-1 = Metadados, 0 to N-1 = Fotos, N = Resumo)
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
-  const [isProcessing, setIsProcessing] = useState<'camera' | 'gallery' | null>(null);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [batchStatus, setBatchStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!date) {
@@ -159,63 +161,20 @@ export default function RegisterOCR() {
 
         const savedUrl = fullBase64String; // Vamos salvar a string completa no BD para renderizar depois
 
-        try {
-          let retryCount = 0;
-          let success = false;
-          let result: any = null;
+        const savedUrl = fullBase64String;
 
-          while (retryCount < 6 && !success) {
-            const res = await fetch('/api/ocr-display', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                imageBase64: base64Data, 
-                mimeType: 'image/jpeg',
-                expectedTurnstile: currentStep.turnstileId
-              })
-            });
-            
-            if (res.status === 429) {
-              // Limite do Gemini atingido. Aguarda 10s e tenta de novo.
-              console.warn("Fila ativada: Aguardando 10 segundos devido ao limite do Gemini...");
-              await new Promise(resolve => setTimeout(resolve, 10000));
-              retryCount++;
-              continue;
-            }
-
-            result = await res.json();
-            success = true;
-          }
-          
-          if (success && result && result.success && result.data) {
-            const val = result.data.value;
-            const newReadings = [...readings];
-            
-            if (currentStep.type === 'entry') {
-              newReadings[currentStep.readingIndex].entryStart = val;
-              newReadings[currentStep.readingIndex].entryStartImg = savedUrl;
-            } else {
-              newReadings[currentStep.readingIndex].exitStart = val;
-              newReadings[currentStep.readingIndex].exitStartImg = savedUrl;
-            }
-
-            if (result.data.isOutOfOrder) {
-              newReadings[currentStep.readingIndex].isOutOfOrder = true;
-            }
-
-            setReadings(newReadings);
-          } else if (!success) {
-            alert('A IA está sobrecarregada no momento. Por favor, digite o número manualmente nesta catraca.');
-          }
-        } catch (e) {
-          console.error(e);
-        } finally {
-          // Avança o passo limpando os inputs
-          if (cameraInputRef.current) cameraInputRef.current.value = '';
-          if (galleryInputRef.current) galleryInputRef.current.value = '';
-          setCurrentStepIndex(prev => prev + 1);
-          setIsProcessing(null);
+        const newReadings = [...readings];
+        if (currentStep.type === 'entry') {
+          newReadings[currentStep.readingIndex].entryStartImg = savedUrl;
+        } else {
+          newReadings[currentStep.readingIndex].exitStartImg = savedUrl;
         }
+        setReadings(newReadings);
+
+        if (cameraInputRef.current) cameraInputRef.current.value = '';
+        if (galleryInputRef.current) galleryInputRef.current.value = '';
+        setCurrentStepIndex(prev => prev + 1);
+        setIsProcessing(null);
       };
     } catch (err) {
       console.error(err);
@@ -258,6 +217,68 @@ export default function RegisterOCR() {
       console.error(err);
       alert('Erro ao salvar no banco de dados.');
       setIsProcessing(null);
+    }
+  };
+
+  const startBatchOCR = async () => {
+    setIsReviewing(true);
+    setBatchStatus("Empacotando as fotos...");
+    
+    const imagesToProcess: any[] = [];
+    steps.forEach((step, stepIndex) => {
+       const r = readings[step.readingIndex];
+       if (step.type === 'entry' && r.entryStartImg && !r.entryStart && !r.isOutOfOrder) {
+          imagesToProcess.push({ base64: r.entryStartImg.split(',')[1], index: stepIndex });
+       }
+       if (step.type === 'exit' && r.exitStartImg && !r.exitStart && !r.isOutOfOrder) {
+          imagesToProcess.push({ base64: r.exitStartImg.split(',')[1], index: stepIndex });
+       }
+    });
+
+    if (imagesToProcess.length === 0) {
+       setBatchStatus(null);
+       return;
+    }
+
+    setBatchStatus(`Lendo ${imagesToProcess.length} displays com IA...`);
+
+    try {
+        const res = await fetch('/api/ocr-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ images: imagesToProcess })
+        });
+        
+        if (res.status === 429) {
+           setBatchStatus("O Google pediu para aguardar alguns segundos. Retentando...");
+           await new Promise(resolve => setTimeout(resolve, 10000));
+           return startBatchOCR();
+        }
+
+        const result = await res.json();
+        
+        if (result.success && result.data) {
+           const newReadings = [...readings];
+           result.data.forEach((item: any) => {
+              const step = steps[item.index];
+              if (!step) return;
+              
+              if (step.type === 'entry') {
+                 newReadings[step.readingIndex].entryStart = item.value;
+              } else {
+                 newReadings[step.readingIndex].exitStart = item.value;
+              }
+              if (item.isOutOfOrder) {
+                 newReadings[step.readingIndex].isOutOfOrder = true;
+              }
+           });
+           setReadings(newReadings);
+        }
+    } catch (e) {
+       console.error("Erro no Batch OCR", e);
+       alert("Houve um erro na leitura em lote. Você pode preencher manualmente na tabela.");
+    } finally {
+       setBatchStatus(null);
     }
   };
 
@@ -466,7 +487,28 @@ export default function RegisterOCR() {
         </div>
       )}
 
-      {currentStepIndex >= steps.length && (
+      {currentStepIndex >= steps.length && !isReviewing && !batchStatus && (
+        <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <CheckCircle2 size={48} color="#22c55e" style={{ margin: '0 auto' }} />
+          <h2 style={{ margin: '1rem 0' }}>Todas as fotos capturadas!</h2>
+          <button className="btn-primary" onClick={startBatchOCR} style={{ padding: '1rem 2rem', fontSize: '1.2rem', width: '100%', maxWidth: '400px' }}>
+            Extrair Números com IA
+          </button>
+          <button className="btn-secondary" onClick={() => setIsReviewing(true)} style={{ padding: '1rem 2rem', fontSize: '1.2rem', marginTop: '1rem', display: 'block', margin: '1rem auto', width: '100%', maxWidth: '400px' }}>
+            Pular IA (Preencher Manualmente)
+          </button>
+        </div>
+      )}
+
+      {batchStatus && (
+        <div style={{ textAlign: 'center', marginTop: '5rem' }}>
+           <Loader2 size={64} className={styles.loadingSpinner} style={{ margin: '0 auto', color: '#b07900' }} />
+           <h2 style={{ marginTop: '2rem' }}>{batchStatus}</h2>
+           <p style={{ color: '#6b7280' }}>A inteligência artificial está lendo tudo de uma vez. Isso levará alguns segundos...</p>
+        </div>
+      )}
+
+      {currentStepIndex >= steps.length && isReviewing && !batchStatus && (
         <div className={styles.formSection} style={{ marginTop: '2rem' }}>
           <div className={styles.statusMessage} style={{ marginBottom: '2rem' }}>
             <CheckCircle2 size={24} />
