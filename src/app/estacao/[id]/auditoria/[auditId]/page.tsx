@@ -115,11 +115,10 @@ export default function FormalAuditDocument() {
           </div>
         </div>
 
-                  {/* Resumo Gerencial */}
                   <div className={styles.summaryBox}>
                     <h3>Resumo do Turno</h3>
                     <p>
-                      Neste turno, compreendido entre <strong>{auditData.startTime} e {auditData.endTime}</strong>, a estação <strong>{stationName}</strong> registrou um fluxo total de <strong>{totalEntries} entradas</strong> e <strong>{totalExits} saídas</strong>. 
+                      Neste turno, compreendido entre <strong>{auditData.startTime} e {auditData.endTime}</strong>, a estação <strong>{stationName}</strong> registrou um fluxo total de <strong style={{color: '#10B981'}}>{totalEntries} entradas</strong> e <strong style={{color: '#EF4444'}}>{totalExits} saídas</strong>. 
                       {inoperantes > 0 
                         ? ` Foram identificados ${inoperantes} bloqueio(s) inoperante(s). ` 
                         : ' Todos os bloqueios operaram normalmente. '}
@@ -169,8 +168,8 @@ export default function FormalAuditDocument() {
                       {/* Fim Saida */}
                       <td>{r.isOutOfOrder ? 'X' : r.exitEnd}</td>
                       
-                      <td><strong style={{ color: '#0f172a' }}>{diffEntry}</strong></td>
-                      <td><strong style={{ color: '#0f172a' }}>{diffExit}</strong></td>
+                      <td><strong style={{ color: '#10B981' }}>{diffEntry}</strong></td>
+                      <td><strong style={{ color: '#EF4444' }}>{diffExit}</strong></td>
                       <td>
                         {r.isOutOfOrder ? (
                           <span style={{ color: '#EF4444', fontWeight: 'bold' }}>Inop.</span>
@@ -182,9 +181,9 @@ export default function FormalAuditDocument() {
               </tbody>
               <tfoot>
                 <tr style={{ backgroundColor: '#f8fafc' }}>
-                  <td colSpan={4} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem', color: '#334155', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.05em' }}>TOTAL CONSOLIDADO DO TURNO:</td>
-                  <td style={{ fontSize: '1rem', color: '#0f172a' }}><strong>{totalEntries}</strong></td>
-                  <td style={{ fontSize: '1rem', color: '#0f172a' }}><strong>{totalExits}</strong></td>
+                  <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem', color: '#334155', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.05em' }}>TOTAL CONSOLIDADO DO TURNO:</td>
+                  <td style={{ fontSize: '1.1rem', color: '#10B981' }}><strong>{totalEntries}</strong></td>
+                  <td style={{ fontSize: '1.1rem', color: '#EF4444' }}><strong>{totalExits}</strong></td>
                   <td></td>
                 </tr>
               </tfoot>
