@@ -80,11 +80,12 @@ export default function FormalAuditDocument() {
       </div>
 
       <div className={styles.a4Paper} translate="no">
-        <div className={styles.header} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-          <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '60px', objectFit: 'contain', marginBottom: '0.5rem' }} />
-          <p style={{ color: '#EA580C', fontWeight: 700, marginBottom: '0.2rem' }}>CONCESSIONÁRIA LINHA UNIVERSIDADE</p>
-          <h1 style={{ margin: '0 0 0.5rem 0' }}>Relatório Oficial de Auditoria de Fluxo</h1>
-          <p style={{ margin: 0 }}>Linha 6 - Laranja</p>
+        <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', borderBottom: '2px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '2rem' }}>
+          <div>
+            <h1 style={{ fontSize: '1.4rem', margin: '0 0 0.25rem 0', color: '#0f172a' }}>Relatório Oficial de Auditoria</h1>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>Linha 6 - Laranja | Concessionária Linha Universidade</p>
+          </div>
+          <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '50px', objectFit: 'contain' }} />
         </div>
 
         <div className={styles.metadataGrid}>
@@ -107,14 +108,14 @@ export default function FormalAuditDocument() {
         </div>
 
         {/* Resumo Gerencial */}
-        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #EA580C', marginBottom: '2rem', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#0f172a' }}>Resumo do Turno</h3>
-          <p style={{ margin: 0, color: '#475569', lineHeight: '1.5' }}>
-            Neste turno, compreendido entre {auditData.startTime} e {auditData.endTime}, a estação {stationName} registrou um fluxo total de <strong style={{color: '#10B981'}}>{totalEntries} entradas</strong> e <strong style={{color: '#3B82F6'}}>{totalExits} saídas</strong>. 
+        <div style={{ marginTop: '1rem', padding: '1.5rem', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '2rem', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Resumo do Turno</h3>
+          <p style={{ margin: 0, color: '#334155', lineHeight: '1.6', fontSize: '0.95rem' }}>
+            Neste turno, compreendido entre <strong>{auditData.startTime} e {auditData.endTime}</strong>, a estação <strong>{stationName}</strong> registrou um fluxo total de <strong style={{color: '#0f172a'}}>{totalEntries} entradas</strong> e <strong style={{color: '#0f172a'}}>{totalExits} saídas</strong>. 
             {inoperantes > 0 
-              ? ` Foram identificados ${inoperantes} bloqueio(s) inoperante(s) ou isolado(s). ` 
-              : ' Todos os bloqueios operaram normalmente durante o período. '}
-            O bloqueio com maior movimentação foi o <strong>{maxFluxTurnstile}</strong>, contabilizando {maxFlux} acessos (entradas + saídas).
+              ? ` Foram identificados ${inoperantes} bloqueio(s) inoperante(s). ` 
+              : ' Todos os bloqueios operaram normalmente. '}
+            O bloqueio com maior movimentação foi o <strong>{maxFluxTurnstile}</strong>, contabilizando {maxFlux} acessos.
           </p>
         </div>
 
@@ -160,8 +161,8 @@ export default function FormalAuditDocument() {
                       {/* Fim Saida */}
                       <td>{r.isOutOfOrder ? 'X' : r.exitEnd}</td>
                       
-                      <td><strong style={{ color: '#10B981' }}>{diffEntry}</strong></td>
-                      <td><strong style={{ color: '#3B82F6' }}>{diffExit}</strong></td>
+                      <td><strong style={{ color: '#0f172a' }}>{diffEntry}</strong></td>
+                      <td><strong style={{ color: '#0f172a' }}>{diffExit}</strong></td>
                       <td>
                         {r.isOutOfOrder ? (
                           <span style={{ color: '#EF4444', fontWeight: 'bold' }}>Inop.</span>
@@ -172,10 +173,10 @@ export default function FormalAuditDocument() {
                 })}
               </tbody>
               <tfoot>
-                <tr style={{ backgroundColor: '#f8fafc', borderTop: '2px solid #cbd5e1' }}>
-                  <td colSpan={5} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem' }}>TOTAL CONSOLIDADO DO TURNO:</td>
-                  <td style={{ fontSize: '1.1rem', color: '#10B981' }}><strong>{totalEntries}</strong></td>
-                  <td style={{ fontSize: '1.1rem', color: '#3B82F6' }}><strong>{totalExits}</strong></td>
+                <tr style={{ backgroundColor: '#f8fafc' }}>
+                  <td colSpan={4} style={{ textAlign: 'right', fontWeight: 'bold', paddingRight: '1rem', color: '#334155', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.05em' }}>TOTAL CONSOLIDADO DO TURNO:</td>
+                  <td style={{ fontSize: '1rem', color: '#0f172a' }}><strong>{totalEntries}</strong></td>
+                  <td style={{ fontSize: '1rem', color: '#0f172a' }}><strong>{totalExits}</strong></td>
                   <td></td>
                 </tr>
               </tfoot>
