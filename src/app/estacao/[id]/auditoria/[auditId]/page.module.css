@@ -115,12 +115,10 @@
   border-bottom: 2px solid #e2e8f0;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
+  text-align: center; /* Centraliza o título */
 }
 
 /* Tabela Estilizada */
-.tableWrapper {
-  /* page-break rules transferred to parent wrapper in tsx */
-}
 
 .auditTable {
   width: 100%;
@@ -291,9 +289,10 @@
     display: none !important;
   }
   .a4Paper {
+    box-sizing: border-box !important;
     box-shadow: none !important;
-    padding: 1cm 1.5cm !important; /* Adiciona margem interna segura para não colar na borda do papel */
-    margin: 0 !important;
+    padding: 2.54cm !important; /* Margem padrão de documento (1 polegada) para centralizar na folha */
+    margin: 0 auto !important;
     width: 100% !important;
     min-width: 100% !important;
     display: block !important;
