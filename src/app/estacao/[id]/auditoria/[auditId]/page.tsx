@@ -80,15 +80,23 @@ export default function FormalAuditDocument() {
       </div>
 
       <div className={styles.a4Paper} translate="no">
-        <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', textAlign: 'left', borderBottom: '2px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '2rem' }}>
-          <div>
-            <h1 style={{ fontSize: '1.4rem', margin: '0 0 0.25rem 0', color: '#0f172a' }}>Relatório Oficial de Auditoria</h1>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>Linha 6 - Laranja | Concessionária Linha Universidade</p>
-          </div>
-          <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '50px', objectFit: 'contain' }} />
-        </div>
+        {/* Hack avançado para margens perfeitas sem header/footer do navegador */}
+        <table className={styles.printMarginTable}>
+          <thead><tr><td><div className={styles.printMarginTop}></div></td></tr></thead>
+          <tfoot><tr><td><div className={styles.printMarginBottom}></div></td></tr></tfoot>
+          <tbody>
+            <tr>
+              <td>
+                <div className={styles.documentContent}>
+                  <div className={styles.header}>
+                    <div>
+                      <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.5rem 0', color: '#000000', letterSpacing: '-0.02em' }}>Relatório de Auditoria</h1>
+                      <p style={{ margin: 0, fontSize: '1rem', color: '#5f6368', fontWeight: 500 }}>Linha 6 - Laranja | Concessionária Linha Universidade</p>
+                    </div>
+                    <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '48px', objectFit: 'contain' }} />
+                  </div>
 
-        <div className={styles.metadataGrid}>
+                  <div className={styles.metadataGrid}>
           <div className={styles.metaItem}>
             <span className={styles.metaLabel}>ID do Documento</span>
             <span className={styles.metaValue}>{auditData.id}</span>
@@ -107,21 +115,21 @@ export default function FormalAuditDocument() {
           </div>
         </div>
 
-        {/* Resumo Gerencial */}
-        <div style={{ marginTop: '1rem', padding: '1.5rem', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '2rem', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Resumo do Turno</h3>
-          <p style={{ margin: 0, color: '#334155', lineHeight: '1.6', fontSize: '0.95rem' }}>
-            Neste turno, compreendido entre <strong>{auditData.startTime} e {auditData.endTime}</strong>, a estação <strong>{stationName}</strong> registrou um fluxo total de <strong style={{color: '#0f172a'}}>{totalEntries} entradas</strong> e <strong style={{color: '#0f172a'}}>{totalExits} saídas</strong>. 
-            {inoperantes > 0 
-              ? ` Foram identificados ${inoperantes} bloqueio(s) inoperante(s). ` 
-              : ' Todos os bloqueios operaram normalmente. '}
-            O bloqueio com maior movimentação foi o <strong>{maxFluxTurnstile}</strong>, contabilizando {maxFlux} acessos.
-          </p>
-        </div>
+                  {/* Resumo Gerencial */}
+                  <div className={styles.summaryBox}>
+                    <h3>Resumo do Turno</h3>
+                    <p>
+                      Neste turno, compreendido entre <strong>{auditData.startTime} e {auditData.endTime}</strong>, a estação <strong>{stationName}</strong> registrou um fluxo total de <strong>{totalEntries} entradas</strong> e <strong>{totalExits} saídas</strong>. 
+                      {inoperantes > 0 
+                        ? ` Foram identificados ${inoperantes} bloqueio(s) inoperante(s). ` 
+                        : ' Todos os bloqueios operaram normalmente. '}
+                      O bloqueio com maior movimentação foi o <strong>{maxFluxTurnstile}</strong>, contabilizando {maxFlux} acessos.
+                    </p>
+                  </div>
 
-        <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-          <h2 className={styles.sectionTitle}>Tabela de Contagem Diferencial (Comprovada)</h2>
-          <div className={styles.tableWrapper}>
+                  <div style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                    <h2 className={styles.sectionTitle}>Tabela de Contagem Diferencial (Comprovada)</h2>
+                    <div className={styles.tableWrapper}>
             <table className={styles.auditTable}>
               <thead>
                 <tr>
@@ -181,14 +189,14 @@ export default function FormalAuditDocument() {
                 </tr>
               </tfoot>
             </table>
-          </div>
-        </div>
+                    </div>
+                  </div>
 
-        {/* Anexo Fotográfico */}
-        <div style={{ marginTop: '3rem', pageBreakBefore: 'always', paddingTop: '1.5cm' }}>
-          <h2 className={styles.sectionTitle} style={{ borderBottom: '2px solid #EA580C', paddingBottom: '0.5rem' }}>Anexo: Evidências Fotográficas</h2>
-          
-          <div className={styles.imageGridList}>
+                  {/* Anexo Fotográfico */}
+                  <div className={styles.annexSection}>
+                    <h2 className={styles.sectionTitle}>Anexo: Evidências Fotográficas</h2>
+                    
+                    <div className={styles.imageGridList}>
             {auditData.readings.map((r: any) => {
               if (!r.entryStartImg && !r.exitStartImg && !r.entryEndImg && !r.exitEndImg) return null;
               
@@ -243,25 +251,18 @@ export default function FormalAuditDocument() {
           </div>
         </div>
 
-        <div className={styles.signaturePage}>
-          <div className={styles.signatureSection}>
-            <div className={styles.signatureBox}>
-              <div className={styles.signatureLine}></div>
-              <span className={styles.signatureName}>{auditData.operatorName || 'Auditor'}</span>
-              <span className={styles.signatureRole}>Auditor Responsável</span>
-            </div>
-            
-            <div className={styles.signatureBox}>
-              <div className={styles.signatureLine}></div>
-              <span className={styles.signatureName}>____________________________</span>
-              <span className={styles.signatureRole}>Gerência de Estação</span>
-            </div>
-          </div>
-          
-          <div className={styles.footer}>
-            Data de Impressão: {new Date().toLocaleString('pt-BR')}
-          </div>
-        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.footer}>
+                      Relatório gerado digitalmente em {new Date().toLocaleString('pt-BR')} - Sistema de Indicadores Linha Uni
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );

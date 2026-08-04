@@ -108,6 +108,31 @@
   font-weight: 600;
 }
 
+.summaryBox {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+  page-break-inside: avoid;
+}
+
+.summaryBox h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.summaryBox p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
 .sectionTitle {
   font-size: 1.1rem;
   font-weight: 700;
@@ -233,14 +258,11 @@
 }
 
 /* Assinaturas */
-.signaturePage {
-  margin-top: 4rem;
-  page-break-inside: avoid;
-}
-
 .signatureSection {
+  margin-top: 5rem;
   display: flex;
   justify-content: space-around;
+  page-break-inside: avoid;
 }
 
 .signatureBox {
@@ -283,13 +305,31 @@
     size: A4;
   }
   
-  .signaturePage {
+  .printMarginTable {
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+  }
+  
+  .printMarginTop, .printMarginBottom {
+    height: 1.5cm; /* Margem superior e inferior repetida em cada página real */
+  }
+  
+  .annexSection {
     page-break-before: always;
-    padding-top: 2cm;
-    height: 100vh; /* Ocupa a página inteira na impressão */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+  }
+  
+  .signatureSection {
+    page-break-inside: avoid;
+    margin-top: 5rem;
+  }
+  
+  .footer {
+    position: fixed;
+    bottom: 1cm;
+    left: 0;
+    right: 0;
+    text-align: center;
   }
   body, html {
     background-color: white !important;
