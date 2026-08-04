@@ -251,19 +251,29 @@ export default function FormalAuditDocument() {
           </div>
         </div>
 
-                      </div>
-                    </div>
+        <div className={styles.signatureSection}>
+          <div className={styles.signatureBox}>
+            <div className={styles.signatureLine}></div>
+            <span className={styles.signatureName}>{auditData.operatorName || 'Auditor'}</span>
+            <span className={styles.signatureRole}>Auditor Responsável</span>
+          </div>
+          
+          <div className={styles.signatureBox}>
+            <div className={styles.signatureLine}></div>
+            <span className={styles.signatureName}>____________________________</span>
+            <span className={styles.signatureRole}>Gerência de Estação</span>
+          </div>
+        </div>
 
-                    <div className={styles.footer}>
-                      Relatório gerado digitalmente em {new Date().toLocaleString('pt-BR')} - Sistema de Indicadores Linha Uni
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className={styles.footer}>
+          Relatório gerado digitalmente em {new Date().toLocaleString('pt-BR')} - Sistema de Indicadores Linha Uni
+        </div>
       </div>
-    </div>
-  );
+    </td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+);
 }
