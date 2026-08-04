@@ -58,7 +58,7 @@ Remova pontos do valor final. Se notar "X" ou Inoperante, marque isOutOfOrder: t
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.2-11b-vision-preview',
+        model: 'qwen/qwen3.6-27b',
         messages: [
           {
             role: 'user',
