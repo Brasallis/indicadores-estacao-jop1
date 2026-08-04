@@ -119,8 +119,7 @@
 
 /* Tabela Estilizada */
 .tableWrapper {
-  page-break-inside: avoid;
-  break-inside: avoid;
+  /* page-break rules transferred to parent wrapper in tsx */
 }
 
 .auditTable {
@@ -170,13 +169,13 @@
 .imageGridList {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .imageCardGroup {
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: #f8fafc;
   page-break-inside: avoid;
 }
@@ -184,7 +183,7 @@
 .imageGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
   page-break-inside: avoid;
 }
 
@@ -221,7 +220,7 @@
 .largeImage {
   width: 100%;
   height: auto;
-  max-height: 250px;
+  max-height: 180px;
   object-fit: contain;
   display: block;
 }
