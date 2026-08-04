@@ -100,8 +100,8 @@ export default function EditAudit() {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
-        // Redimensionar para evitar travamento no celular e falha no toBlob
-        const MAX_DIMENSION = 1280;
+        // Redimensionar para evitar Payload Too Large na Vercel (Max 4.5MB por request)
+        const MAX_DIMENSION = 800;
         let width = img.width;
         let height = img.height;
 
@@ -166,7 +166,7 @@ export default function EditAudit() {
           if (!blob) return reject('No blob');
           const finalFile = new File([blob], file.name, { type: 'image/jpeg' });
           resolve(finalFile);
-        }, 'image/jpeg', 0.85);
+        }, 'image/jpeg', 0.5);
       };
       img.onerror = reject;
       img.src = URL.createObjectURL(file);
@@ -269,43 +269,51 @@ export default function EditAudit() {
        return;
     }
 
-    setBatchStatus(`Lendo ${imagesToProcess.length} displays com IA...`);
+    setBatchStatus(`Enviando as fotos para a IA (Isso pode levar alguns segundos)...`);
 
     try {
-        const res = await fetch('/api/ocr-batch', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ images: imagesToProcess })
-        });
-        
-        if (res.status === 429) {
-           setBatchStatus("O Google pediu para aguardar alguns segundos. Retentando...");
-           await new Promise(resolve => setTimeout(resolve, 10000));
-           return startBatchOCR();
-        }
+        const CHUNK_SIZE = 5;
+        for (let i = 0; i < imagesToProcess.length; i += CHUNK_SIZE) {
+            const chunk = imagesToProcess.slice(i, i + CHUNK_SIZE);
+            setBatchStatus(`Lendo lote ${Math.floor(i/CHUNK_SIZE)+1} de ${Math.ceil(imagesToProcess.length/CHUNK_SIZE)}...`);
+            
+            let retryCount = 0;
+            let success = false;
+            
+            while (retryCount < 3 && !success) {
+                const res = await fetch('/api/ocr-batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ images: chunk })
+                });
+                
+                if (res.status === 429) {
+                    setBatchStatus(`Lote ${Math.floor(i/CHUNK_SIZE)+1}: Aguardando 10s (Limite do Google)...`);
+                    await new Promise(r => setTimeout(r, 10000));
+                    retryCount++;
+                    continue;
+                }
 
-        const result = await res.json();
-        
-        if (result.success && result.data) {
-           const newReadings = [...readings];
-           result.data.forEach((item: any) => {
-              const step = steps[item.index];
-              if (!step) return;
-              
-              if (step.type === 'entry') {
-                 newReadings[step.readingIndex].entryEnd = item.value;
-              } else {
-                 newReadings[step.readingIndex].exitEnd = item.value;
-              }
-              if (item.isOutOfOrder) {
-                 newReadings[step.readingIndex].isOutOfOrder = true;
-              }
-           });
-           setReadings(newReadings);
+                if (!res.ok) throw new Error("Erro na API de Batch");
+
+                const result = await res.json();
+                if (result.success && result.data) {
+                    const newReadings = [...readings];
+                    result.data.forEach((item: any) => {
+                        const step = steps[item.index];
+                        if (!step) return;
+                        if (step.type === 'entry') newReadings[step.readingIndex].entryEnd = item.value;
+                        else newReadings[step.readingIndex].exitEnd = item.value;
+                        if (item.isOutOfOrder) newReadings[step.readingIndex].isOutOfOrder = true;
+                    });
+                    setReadings(newReadings); // Atualiza os que já chegaram
+                }
+                success = true;
+            }
         }
     } catch (e) {
        console.error("Erro no Batch OCR", e);
-       alert("Houve um erro na leitura em lote. Você pode preencher manualmente na tabela.");
+       alert("Houve um erro na leitura em lote. Você pode preencher os restantes manualmente na tabela.");
     } finally {
        setBatchStatus(null);
     }
