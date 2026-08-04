@@ -224,11 +224,14 @@
 }
 
 /* Assinaturas */
+.signaturePage {
+  margin-top: 4rem;
+  page-break-inside: avoid;
+}
+
 .signatureSection {
-  margin-top: 5rem;
   display: flex;
   justify-content: space-around;
-  page-break-inside: avoid;
 }
 
 .signatureBox {
@@ -267,8 +270,16 @@
 /* Configuração rigorosa de impressão (PDF) */
 @media print {
   @page {
-    margin: 0; /* Margin 0 desativa o header/footer com URL do navegador */
+    margin: 1.5cm; /* Retorna a margem nativa para que a tabela não cole no topo da folha 2 */
     size: A4;
+  }
+  
+  .signaturePage {
+    page-break-before: always;
+    height: 25cm; /* Força a página de assinatura a ter a altura de um A4 */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
   body, html {
     background-color: white !important;
@@ -291,7 +302,7 @@
   .a4Paper {
     box-sizing: border-box !important;
     box-shadow: none !important;
-    padding: 2.54cm !important; /* Margem padrão de documento (1 polegada) para centralizar na folha */
+    padding: 0 !important; /* Margem controlada pelo @page agora */
     margin: 0 auto !important;
     width: 100% !important;
     min-width: 100% !important;

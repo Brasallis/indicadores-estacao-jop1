@@ -242,17 +242,19 @@ export default function FormalAuditDocument() {
           </div>
         </div>
 
-        <div className={styles.signatureSection}>
-          <div className={styles.signatureBox}>
-            <div className={styles.signatureLine}></div>
-            <span className={styles.signatureName}>{auditData.operatorName || 'Auditor'}</span>
-            <span className={styles.signatureRole}>Auditor Responsável</span>
-          </div>
-          
-          <div className={styles.signatureBox}>
-            <div className={styles.signatureLine}></div>
-            <span className={styles.signatureName}>____________________________</span>
-            <span className={styles.signatureRole}>Gerência de Estação</span>
+        <div className={styles.signaturePage}>
+          <div className={styles.signatureSection}>
+            <div className={styles.signatureBox}>
+              <div className={styles.signatureLine}></div>
+              <span className={styles.signatureName}>{auditData.operatorName || 'Auditor'}</span>
+              <span className={styles.signatureRole}>Auditor Responsável</span>
+            </div>
+            
+            <div className={styles.signatureBox}>
+              <div className={styles.signatureLine}></div>
+              <span className={styles.signatureName}>____________________________</span>
+              <span className={styles.signatureRole}>Gerência de Estação</span>
+            </div>
           </div>
         </div>
 
