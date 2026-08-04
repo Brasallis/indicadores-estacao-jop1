@@ -93,7 +93,7 @@ export default function FormalAuditDocument() {
                       <h1 style={{ fontSize: '1.8rem', margin: '0 0 0.5rem 0', color: '#000000', letterSpacing: '-0.02em' }}>Relatório de Auditoria</h1>
                       <p style={{ margin: 0, fontSize: '1rem', color: '#5f6368', fontWeight: 500 }}>Linha 6 - Laranja | Concessionária Linha Universidade</p>
                     </div>
-                    <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '48px', objectFit: 'contain' }} />
+                    <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '75px', objectFit: 'contain' }} />
                   </div>
 
                   <div className={styles.metadataGrid}>
