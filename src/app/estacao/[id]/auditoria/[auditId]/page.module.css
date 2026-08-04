@@ -55,8 +55,11 @@
 }
 
 .header {
-  text-align: center;
-  border-bottom: 4px solid #EA580C;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
   padding-bottom: 1.5rem;
   margin-bottom: 2.5rem;
 }
