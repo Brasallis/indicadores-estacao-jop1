@@ -269,7 +269,7 @@
 /* Configuração rigorosa de impressão (PDF) */
 @media print {
   @page {
-    margin: 1cm;
+    margin: 0; /* Margin 0 desativa o header/footer com URL do navegador */
     size: A4;
   }
   body, html {
@@ -292,7 +292,7 @@
   }
   .a4Paper {
     box-shadow: none !important;
-    padding: 0 !important;
+    padding: 1cm 1.5cm !important; /* Adiciona margem interna segura para não colar na borda do papel */
     margin: 0 !important;
     width: 100% !important;
     min-width: 100% !important;
