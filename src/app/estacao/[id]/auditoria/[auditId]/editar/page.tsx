@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, Camera, CheckCircle2, ChevronRight, SkipForward } from 'lucide-react';
 import { getStationById } from '@/lib/stations';
+import { extractTurnstileValue } from '@/lib/ocr';
 import styles from '../../../registrar/page.module.css';
 
 interface Step {
@@ -181,14 +182,13 @@ export default function EditAudit() {
       // 1. Aplicar Marca D'água
       const watermarkedFile = await processImageWithWatermark(file, currentStep);
 
-      // Converter para Base64 e enviar para a IA
+      // Converter para Base64
       const reader = new FileReader();
       reader.readAsDataURL(watermarkedFile);
       reader.onload = async () => {
         const fullBase64String = reader.result?.toString();
-        const base64Data = fullBase64String?.split(',')[1];
         
-        if (!base64Data || !fullBase64String) {
+        if (!fullBase64String) {
           setIsProcessing(null);
           return;
         }
@@ -196,19 +196,10 @@ export default function EditAudit() {
         const savedUrl = fullBase64String;
 
         try {
-          const res = await fetch('/api/ocr-display', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              imageBase64: base64Data, 
-              mimeType: 'image/jpeg',
-              expectedTurnstile: currentStep.turnstileId
-            })
-          });
-          const result = await res.json();
+          const result = await extractTurnstileValue(watermarkedFile);
           
-          if (result.success && result.data) {
-            const val = result.data.value;
+          if (result) {
+            const val = result.value;
             const newReadings = [...readings];
             
             if (currentStep.type === 'entry') {
@@ -219,14 +210,14 @@ export default function EditAudit() {
               newReadings[currentStep.readingIndex].exitEndImg = savedUrl;
             }
 
-            if (result.data.isOutOfOrder) {
+            if (result.isOutOfOrder) {
               newReadings[currentStep.readingIndex].isOutOfOrder = true;
             }
 
             setReadings(newReadings);
           }
         } catch (e) {
-          console.error(e);
+          console.error("Erro no OCR local:", e);
         } finally {
           if (cameraInputRef.current) cameraInputRef.current.value = '';
           if (galleryInputRef.current) galleryInputRef.current.value = '';
