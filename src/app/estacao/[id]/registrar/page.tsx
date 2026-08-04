@@ -241,7 +241,7 @@ export default function RegisterOCR() {
     setBatchStatus(`Enviando as fotos para a IA (Isso pode levar alguns segundos)...`);
 
     try {
-        const CHUNK_SIZE = 3;
+        const CHUNK_SIZE = imagesToProcess.length; // Envia todas as fotos em UMA ÚNICA requisição para usar apenas 1 cota do Gemini!
         for (let i = 0; i < imagesToProcess.length; i += CHUNK_SIZE) {
             const chunk = imagesToProcess.slice(i, i + CHUNK_SIZE);
             setBatchStatus(`Lendo lote ${Math.floor(i/CHUNK_SIZE)+1} de ${Math.ceil(imagesToProcess.length/CHUNK_SIZE)}...`);

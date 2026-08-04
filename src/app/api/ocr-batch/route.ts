@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const runtime = "nodejs";
 export const maxDuration = 60; 
@@ -10,6 +11,14 @@ export async function POST(request: Request) {
     if (!images || !Array.isArray(images) || images.length === 0) {
       return NextResponse.json({ success: false, error: 'Missing images array' }, { status: 400 });
     }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Chave GEMINI_API_KEY não configurada.");
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const promptText = `Você é um leitor de catracas de alta precisão. 
 Abaixo estão várias imagens. Cada imagem é a foto de um display de catraca. O nome da catraca e se é Entrada ou Saída está escrito como uma marca d'água no topo de cada foto.
@@ -35,68 +44,40 @@ Retorne ÚNICA E EXCLUSIVAMENTE um array JSON contendo um objeto para cada foto,
 
 Remova pontos do valor final. Se notar "X" ou Inoperante, marque isOutOfOrder: true e deixe o value vazio. Apenas retorne o JSON!`;
 
-    const content: any[] = [{ type: "text", text: promptText }];
+    const promptParts: any[] = [promptText];
 
     images.forEach((img: { base64: string, index: number }) => {
-      content.push({
-        type: "image_url",
-        image_url: {
-          url: `data:image/jpeg;base64,${img.base64}`
+      promptParts.push({
+        inlineData: {
+          data: img.base64,
+          mimeType: "image/jpeg"
         }
       });
     });
 
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      throw new Error("Chave GROQ_API_KEY não configurada. Por favor, adicione na Vercel.");
-    }
-
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.6-27b',
-        messages: [
-          {
-            role: 'user',
-            content: content
-          }
-        ],
-        temperature: 0.1,
-        max_tokens: 1024
-      })
-    });
-
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
-      if (groqResponse.status === 429) {
-        return NextResponse.json({ success: false, error: 'RATE_LIMIT', details: errText }, { status: 429 });
-      }
-      throw new Error(`Groq API Error: ${groqResponse.status} - ${errText}`);
-    }
-
-    const data = await groqResponse.json();
-    const rawResponseText = data.choices[0].message.content;
+    const result = await model.generateContent(promptParts);
+    const response = await result.response;
+    const text = response.text();
     
     let jsonParsed = [];
     try {
-      jsonParsed = JSON.parse(rawResponseText.trim());
+      jsonParsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
     } catch(e) {
-      const matches = rawResponseText.match(/\[[\s\S]*\]/);
+      const matches = text.match(/\[[\s\S]*\]/);
       if (matches) {
         jsonParsed = JSON.parse(matches[0]);
       } else {
-        throw new Error("O Llama retornou um formato JSON inválido.");
+        throw new Error("O Gemini retornou um formato JSON inválido.");
       }
     }
 
     return NextResponse.json({ success: true, data: jsonParsed });
 
   } catch (error: any) {
-    console.error('Erro no OCR Batch (Groq):', error);
+    console.error('Erro no OCR Batch (Gemini):', error);
+    if (error.status === 429 || error.message.includes('429')) {
+      return NextResponse.json({ success: false, error: 'RATE_LIMIT' }, { status: 429 });
+    }
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
