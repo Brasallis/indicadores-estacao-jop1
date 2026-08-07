@@ -538,7 +538,7 @@ export default function StationDashboard() {
             <tbody>
               {historyData.map(audit => (
                 <tr key={audit.id}>
-                  <td>{new Date(audit.date).toLocaleDateString('pt-BR')}</td>
+                  <td>{new Date(audit.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                   <td>{audit.shift}</td>
                   <td>{audit.operator}</td>
                   <td style={{ color: '#f9ab00', fontWeight: 'bold' }}>{audit.totalEntries}</td>
