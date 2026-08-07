@@ -75,8 +75,9 @@ export default function StationDashboard() {
           });
           setPreviousStats({ entries: pEntries, exits: pExits });
 
-          // Construir histórico
-          const hData = audits.map((a: any) => {
+          // Construir histórico independente do filtro de data (usando as últimas 30 do banco)
+          const recentHistoryData = result.historyData || audits;
+          const hData = recentHistoryData.map((a: any) => {
             let tEntries = 0;
             let tExits = 0;
             let isClosed = false;

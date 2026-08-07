@@ -47,7 +47,15 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
       endDate.setUTCHours(23,59,59,999);
 
       const audits = await fetchAuditsForPeriod(startDate, endDate, shiftFilter);
-      return NextResponse.json({ success: true, data: audits, previousData: [] });
+      
+      const recentHistory = await prisma.shiftAudit.findMany({
+        where: { station: { code: stationCode } },
+        include: { readings: true },
+        orderBy: [ { date: 'desc' }, { createdAt: 'desc' } ],
+        take: 30
+      });
+
+      return NextResponse.json({ success: true, data: audits, previousData: [], historyData: recentHistory });
     } 
     
     else if (mode === 'monthly') {
@@ -68,10 +76,18 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
         fetchAuditsForPeriod(prevStart, prevEnd, 'Todos')
       ]);
 
+      const recentHistory = await prisma.shiftAudit.findMany({
+        where: { station: { code: stationCode } },
+        include: { readings: true },
+        orderBy: [ { date: 'desc' }, { createdAt: 'desc' } ],
+        take: 30
+      });
+
       return NextResponse.json({ 
         success: true, 
         data: currentAudits, 
-        previousData: previousAudits 
+        previousData: previousAudits,
+        historyData: recentHistory
       });
     }
 
