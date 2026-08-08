@@ -3,9 +3,6 @@ import { pipeline, env } from '@huggingface/transformers';
 // Desabilita cache local pesado no modo dev se necessário
 env.allowLocalModels = false;
 
-// Evitar problemas de versão com onnxruntime
-env.backends.onnx.wasm.numThreads = 1;
-
 let visionPipeline: any = null;
 
 async function initModel() {
