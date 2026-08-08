@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
       const payload = {
         model: ollamaModel,
-        prompt: "You are an OCR system. Read the RED LED display. The digits may be separated by dots (e.g. 7.6.7). Read ALL digits from left to right. Output ONLY the digits. Do not include dots or any other text. If the screen is off or unreadable, return X.",
+        prompt: "You are an OCR system. Read the RED LED display. The digits may be separated by dots (e.g. 7.6.7). Read ALL digits from left to right. Output ONLY the digits. Do not include dots or any other text. If the screen is off or unreadable, return EMPTY.",
         images: [base64Raw],
         stream: false,
         options: {
@@ -51,23 +51,22 @@ export async function POST(request: Request) {
         const data = await res.json();
         const extractedText = data.response.trim();
 
-        const isOutOfOrder = extractedText === 'X' || extractedText === '';
         // Remove tudo que não for dígito
         const cleanedValue = extractedText.replace(/\D/g, '');
 
         jsonParsed.push({
           index: img.index,
-          value: isOutOfOrder ? "" : cleanedValue,
-          isOutOfOrder: isOutOfOrder
+          value: cleanedValue,
+          isOutOfOrder: false // Nunca assume Inoperante automaticamente. Se não ler, deixa vazio para o usuário preencher.
         });
 
       } catch (err: any) {
         console.error(`Erro ao processar imagem ${img.index}:`, err.message);
-        // Em caso de falha individual, marca como inoperante ou vazio para não travar o lote
+        // Em caso de falha individual, deixa o campo vazio em vez de travar ou marcar como inoperante
         jsonParsed.push({
           index: img.index,
           value: "",
-          isOutOfOrder: true
+          isOutOfOrder: false
         });
       }
     }
