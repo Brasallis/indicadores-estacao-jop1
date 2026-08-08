@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
       const payload = {
         model: ollamaModel,
-        prompt: "OUTPUT ONLY THE EXACT NUMBER SHOWN ON THE RED LED DISPLAY. NO TEXT. NO EXPLANATION. JUST THE NUMBER. IF THE SCREEN IS BLACK OR UNREADABLE RETURN X",
+        prompt: "You are an OCR system. Read the RED LED display. The digits may be separated by dots (e.g. 7.6.7). Read ALL digits from left to right. Output ONLY the digits. Do not include dots or any other text. If the screen is off or unreadable, return X.",
         images: [base64Raw],
         stream: false,
         options: {
