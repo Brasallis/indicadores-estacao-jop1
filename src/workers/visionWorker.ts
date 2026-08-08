@@ -8,12 +8,12 @@ let visionPipeline: any = null;
 async function initModel() {
   if (visionPipeline) return visionPipeline;
   
-  // Utilizaremos o Moondream2, um VLM pesado de 1.4B parâmetros (1.5GB+ de VRAM)
-  // Capaz de entender o contexto da foto inteira da catraca
-  postMessage({ status: 'log', message: 'Iniciando alocação do motor Transformers.js (Preparando para VLM Pesado)...' });
+  // Utilizaremos o Florence-2 da Microsoft, o modelo Vision-Language mais avançado do mundo
+  // para leitura de textos em imagens complexas. Oficialmente suportado no navegador!
+  postMessage({ status: 'log', message: 'Iniciando alocação do motor Transformers.js (Preparando Florence-2 Microsoft)...' });
   
-  visionPipeline = await pipeline('image-to-text', 'Xenova/moondream2', {
-    dtype: { embed_tokens: 'fp16', vision_encoder: 'fp16', decoder_model_merged: 'q8' },
+  visionPipeline = await pipeline('image-to-text', 'Xenova/Florence-2-base', {
+    dtype: 'q8', // Quantização segura para rodar em qualquer PC/Tablet
     // Removemos o device: 'webgpu' para permitir que o transformers.js decida o melhor backend
     progress_callback: (progress: any) => {
       if (progress.status === 'downloading') {
@@ -23,7 +23,7 @@ async function initModel() {
   });
 
   postMessage({ status: 'init' });
-  postMessage({ status: 'log', message: 'Modelo Moondream2 (1.5GB+) alocado com sucesso na GPU!' });
+  postMessage({ status: 'log', message: 'Modelo Florence-2 da Microsoft alocado com sucesso!' });
   return visionPipeline;
 }
 
@@ -33,6 +33,7 @@ initModel().catch(err => {
   postMessage({ status: 'error', message: 'Falha ao iniciar motor de IA: ' + err.message });
 });
 
+
 self.onmessage = async (e: MessageEvent) => {
   const { type, image } = e.data;
 
@@ -41,8 +42,8 @@ self.onmessage = async (e: MessageEvent) => {
       postMessage({ status: 'log', message: 'Analisando tensores da imagem offline via Placa de Vídeo...' });
       const pipe = await initModel();
       
-      const prompt = "Read only the digital numbers on the LCD screen inside this photo. Just the numbers.";
-      postMessage({ status: 'log', message: `Executando prompt VLM: "${prompt}"` });
+      const prompt = "<OCR>"; // Comando especial do Florence-2 para extrair todo o texto visível e distorcido
+      postMessage({ status: 'log', message: `Executando varredura ótica com Microsoft Florence-2...` });
 
       const out = await pipe(image, { prompt });
       const text = out[0].generated_text;
