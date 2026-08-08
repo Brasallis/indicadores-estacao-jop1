@@ -36,7 +36,10 @@ export async function POST(request: Request) {
       try {
         const res = await fetch(ollamaUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Bypass-Tunnel-Reminder': 'true' // Ignora a tela de aviso de segurança do LocalTunnel
+          },
           body: JSON.stringify(payload)
         });
 
