@@ -14,7 +14,7 @@ async function initModel() {
   
   visionPipeline = await pipeline('image-to-text', 'Xenova/moondream2', {
     dtype: { embed_tokens: 'fp16', vision_encoder: 'fp16', decoder_model_merged: 'q8' },
-    device: 'webgpu', // Forçando uso da Placa de Vídeo do usuário
+    // Removemos o device: 'webgpu' para permitir que o transformers.js decida o melhor backend
     progress_callback: (progress: any) => {
       if (progress.status === 'downloading') {
         postMessage({ status: 'downloading', message: `Baixando VLM Pesado (${progress.name}) - Pode demorar alguns minutos...` });
@@ -27,8 +27,11 @@ async function initModel() {
   return visionPipeline;
 }
 
-// Inicializa no background ao carregar
-initModel();
+// Inicializa no background ao carregar e captura erros fatais
+initModel().catch(err => {
+  console.error("Erro fatal ao carregar o modelo:", err);
+  postMessage({ status: 'error', message: 'Falha ao iniciar motor de IA: ' + err.message });
+});
 
 self.onmessage = async (e: MessageEvent) => {
   const { type, image } = e.data;
