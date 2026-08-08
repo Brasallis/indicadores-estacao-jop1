@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const runtime = "nodejs";
 export const maxDuration = 60; 
@@ -12,72 +11,67 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Missing images array' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("Chave GEMINI_API_KEY não configurada.");
-    }
+    const ollamaUrl = process.env.OLLAMA_URL || "http://127.0.0.1:11434/api/generate";
+    const ollamaModel = process.env.OLLAMA_MODEL || "llava-phi3";
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+    console.log(`[OCR Batch] Iniciando processamento de ${images.length} imagens no Ollama (${ollamaModel})`);
 
-    const promptText = `Você é um leitor de catracas de alta precisão. 
-Abaixo estão várias imagens. Cada imagem é a foto de um display de catraca. O nome da catraca e se é Entrada ou Saída está escrito como uma marca d'água no topo de cada foto.
+    const jsonParsed = [];
 
-Sua tarefa:
-Leia o número digital vermelho de cada foto na exata ordem.
-- Se houver pontos (ex: "6.6.7"), significa SAÍDA.
-- Se não houver pontos (ex: "766"), significa ENTRADA.
+    // Processamento sequencial em Lote para o Ollama
+    for (const img of images) {
+      const base64Raw = img.base64.replace(/^data:image\/\w+;base64,/, "");
 
-Retorne ÚNICA E EXCLUSIVAMENTE um array JSON contendo um objeto para cada foto, nesta mesma ordem. Use exatamente as chaves abaixo (sem markdown, sem \`\`\`json):
-[
-  {
-    "index": 0,
-    "value": "1234",
-    "isOutOfOrder": false
-  },
-  {
-    "index": 1,
-    "value": "",
-    "isOutOfOrder": true
-  }
-]
-
-Remova pontos do valor final. Se notar "X" ou Inoperante, marque isOutOfOrder: true e deixe o value vazio. Apenas retorne o JSON!`;
-
-    const promptParts: any[] = [promptText];
-
-    images.forEach((img: { base64: string, index: number }) => {
-      promptParts.push({
-        inlineData: {
-          data: img.base64,
-          mimeType: "image/jpeg"
+      const payload = {
+        model: ollamaModel,
+        prompt: "OUTPUT ONLY THE EXACT NUMBER SHOWN ON THE RED LED DISPLAY. NO TEXT. NO EXPLANATION. JUST THE NUMBER. IF THE SCREEN IS BLACK OR UNREADABLE RETURN X",
+        images: [base64Raw],
+        stream: false,
+        options: {
+          temperature: 0.0,
+          num_predict: 10
         }
-      });
-    });
+      };
 
-    const result = await model.generateContent(promptParts);
-    const response = await result.response;
-    const text = response.text();
-    
-    let jsonParsed = [];
-    try {
-      jsonParsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
-    } catch(e) {
-      const matches = text.match(/\[[\s\S]*\]/);
-      if (matches) {
-        jsonParsed = JSON.parse(matches[0]);
-      } else {
-        throw new Error("O Gemini retornou um formato JSON inválido.");
+      try {
+        const res = await fetch(ollamaUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error(`Erro Ollama: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const extractedText = data.response.trim();
+
+        const isOutOfOrder = extractedText === 'X' || extractedText === '';
+        // Remove tudo que não for dígito
+        const cleanedValue = extractedText.replace(/\D/g, '');
+
+        jsonParsed.push({
+          index: img.index,
+          value: isOutOfOrder ? "" : cleanedValue,
+          isOutOfOrder: isOutOfOrder
+        });
+
+      } catch (err: any) {
+        console.error(`Erro ao processar imagem ${img.index}:`, err.message);
+        // Em caso de falha individual, marca como inoperante ou vazio para não travar o lote
+        jsonParsed.push({
+          index: img.index,
+          value: "",
+          isOutOfOrder: true
+        });
       }
     }
 
     return NextResponse.json({ success: true, data: jsonParsed });
 
   } catch (error: any) {
-    console.error('Erro no OCR Batch (Gemini):', error);
-    if (error.status === 429 || error.message.includes('429')) {
-      return NextResponse.json({ success: false, error: 'RATE_LIMIT' }, { status: 429 });
-    }
+    console.error('Erro no OCR Batch (Ollama):', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
