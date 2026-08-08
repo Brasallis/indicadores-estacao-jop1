@@ -11,20 +11,22 @@ let visionPipeline: any = null;
 async function initModel() {
   if (visionPipeline) return visionPipeline;
   
-  // Utilizaremos o TrOCR (Transformer-based Optical Character Recognition) da Microsoft
-  // É um modelo super leve (menos de 300MB) otimizado para ler textos impressos e painéis de LCD.
-  postMessage({ status: 'log', message: 'Iniciando alocação do motor Transformers.js...' });
+  // Utilizaremos o Moondream2, um VLM pesado de 1.4B parâmetros (1.5GB+ de VRAM)
+  // Capaz de entender o contexto da foto inteira da catraca
+  postMessage({ status: 'log', message: 'Iniciando alocação do motor Transformers.js (Preparando para VLM Pesado)...' });
   
-  visionPipeline = await pipeline('image-to-text', 'Xenova/trocr-small-printed', {
+  visionPipeline = await pipeline('image-to-text', 'Xenova/moondream2', {
+    dtype: { embed_tokens: 'fp16', vision_encoder: 'fp16', decoder_model_merged: 'q8' },
+    device: 'webgpu', // Forçando uso da Placa de Vídeo do usuário
     progress_callback: (progress: any) => {
       if (progress.status === 'downloading') {
-        postMessage({ status: 'downloading', message: `Baixando modelo (${progress.name})...` });
+        postMessage({ status: 'downloading', message: `Baixando VLM Pesado (${progress.name}) - Pode demorar alguns minutos...` });
       }
     }
   });
 
   postMessage({ status: 'init' });
-  postMessage({ status: 'log', message: 'Modelo TrOCR carregado com sucesso.' });
+  postMessage({ status: 'log', message: 'Modelo Moondream2 (1.5GB+) alocado com sucesso na GPU!' });
   return visionPipeline;
 }
 
@@ -36,10 +38,13 @@ self.onmessage = async (e: MessageEvent) => {
 
   if (type === 'process') {
     try {
-      postMessage({ status: 'log', message: 'Analisando tensores da imagem offline...' });
+      postMessage({ status: 'log', message: 'Analisando tensores da imagem offline via Placa de Vídeo...' });
       const pipe = await initModel();
       
-      const out = await pipe(image);
+      const prompt = "Read only the digital numbers on the LCD screen inside this photo. Just the numbers.";
+      postMessage({ status: 'log', message: `Executando prompt VLM: "${prompt}"` });
+
+      const out = await pipe(image, { prompt });
       const text = out[0].generated_text;
 
       postMessage({ status: 'log', message: `Extração concluída: ${text}` });
