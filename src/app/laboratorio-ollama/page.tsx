@@ -6,7 +6,7 @@ import styles from './page.module.css';
 export default function OllamaLab() {
   const [modelName, setModelName] = useState<string>('llava-phi3');
   const [serverUrl, setServerUrl] = useState<string>('http://localhost:11434');
-  const [prompt, setPrompt] = useState<string>('Extract the exact digital number from the red LED screen. Pay close attention to all digits. Respond ONLY with the numbers.');
+  const [prompt, setPrompt] = useState<string>('OUTPUT ONLY THE EXACT NUMBER SHOWN ON THE RED LED DISPLAY. NO TEXT. NO EXPLANATION. JUST THE NUMBER.');
   
   const [image, setImage] = useState<string | null>(null);
   const [base64Raw, setBase64Raw] = useState<string | null>(null);
@@ -48,7 +48,11 @@ export default function OllamaLab() {
           model: modelName,
           prompt: prompt,
           images: [base64Raw],
-          stream: false // Para pegar a resposta completa de uma vez
+          stream: false, // Para pegar a resposta completa de uma vez
+          options: {
+            temperature: 0.0, // Zera a criatividade para não alucinar textos
+            num_predict: 10 // Força o modelo a parar de escrever depois de 10 letras (Acelera brutalmente o tempo de resposta)
+          }
         })
       });
 
