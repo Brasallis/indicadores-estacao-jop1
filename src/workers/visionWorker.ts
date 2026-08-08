@@ -12,7 +12,7 @@ async function initModel() {
   // para leitura de textos em imagens complexas. Oficialmente suportado no navegador!
   postMessage({ status: 'log', message: 'Iniciando alocação do motor Transformers.js (Preparando Florence-2 Microsoft)...' });
   
-  visionPipeline = await pipeline('image-to-text', 'Xenova/Florence-2-base', {
+  visionPipeline = await pipeline('image-to-text', 'onnx-community/Florence-2-base-ft', {
     dtype: 'q8', // Quantização segura para rodar em qualquer PC/Tablet
     // Removemos o device: 'webgpu' para permitir que o transformers.js decida o melhor backend
     progress_callback: (progress: any) => {
