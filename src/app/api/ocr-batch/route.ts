@@ -38,7 +38,8 @@ export async function POST(request: Request) {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Bypass-Tunnel-Reminder': 'true' // Ignora a tela de aviso de segurança do LocalTunnel
+            'Bypass-Tunnel-Reminder': 'true', // Ignora a tela de aviso de segurança do LocalTunnel
+            'User-Agent': 'curl/7.68.0' // Engana firewalls fingindo ser um terminal
           },
           body: JSON.stringify(payload)
         });
