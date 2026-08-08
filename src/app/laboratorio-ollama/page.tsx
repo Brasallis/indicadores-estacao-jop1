@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import styles from './page.module.css';
 
 export default function OllamaLab() {
-  const [modelName, setModelName] = useState<string>('moondream');
+  const [modelName, setModelName] = useState<string>('llava-phi3');
   const [serverUrl, setServerUrl] = useState<string>('http://localhost:11434');
-  const [prompt, setPrompt] = useState<string>('Read only the digital numbers on the LCD screen inside this photo. Just the numbers.');
+  const [prompt, setPrompt] = useState<string>('Extract the exact digital number from the red LED screen. Pay close attention to all digits. Respond ONLY with the numbers.');
   
   const [image, setImage] = useState<string | null>(null);
   const [base64Raw, setBase64Raw] = useState<string | null>(null);
