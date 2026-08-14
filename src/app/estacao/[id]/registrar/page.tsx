@@ -226,10 +226,20 @@ export default function RegisterOCR() {
     steps.forEach((step, stepIndex) => {
        const r = readings[step.readingIndex];
        if (step.type === 'entry' && r.entryStartImg && !r.entryStart && !r.isOutOfOrder) {
-          imagesToProcess.push({ base64: r.entryStartImg.split(',')[1], index: stepIndex });
+          imagesToProcess.push({ 
+            base64: r.entryStartImg.split(',')[1], 
+            index: stepIndex, 
+            turnstileId: step.turnstileId, 
+            type: step.type 
+          });
        }
        if (step.type === 'exit' && r.exitStartImg && !r.exitStart && !r.isOutOfOrder) {
-          imagesToProcess.push({ base64: r.exitStartImg.split(',')[1], index: stepIndex });
+          imagesToProcess.push({ 
+            base64: r.exitStartImg.split(',')[1], 
+            index: stepIndex, 
+            turnstileId: step.turnstileId, 
+            type: step.type 
+          });
        }
     });
 

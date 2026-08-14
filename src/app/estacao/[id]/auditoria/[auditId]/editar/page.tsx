@@ -257,10 +257,22 @@ export default function EditAudit() {
     steps.forEach((step, stepIndex) => {
        const r = readings[step.readingIndex];
        if (step.type === 'entry' && r.entryEndImg && !r.entryEnd && !r.isOutOfOrder) {
-          imagesToProcess.push({ base64: r.entryEndImg.split(',')[1], index: stepIndex });
+          imagesToProcess.push({ 
+            base64: r.entryEndImg.split(',')[1], 
+            index: stepIndex,
+            turnstileId: step.turnstileId,
+            type: step.type,
+            previousValue: r.entryStart || null
+          });
        }
        if (step.type === 'exit' && r.exitEndImg && !r.exitEnd && !r.isOutOfOrder) {
-          imagesToProcess.push({ base64: r.exitEndImg.split(',')[1], index: stepIndex });
+          imagesToProcess.push({ 
+            base64: r.exitEndImg.split(',')[1], 
+            index: stepIndex,
+            turnstileId: step.turnstileId,
+            type: step.type,
+            previousValue: r.exitStart || null
+          });
        }
     });
 
