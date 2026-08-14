@@ -15,6 +15,7 @@ model Station {
   name      String
   
   audits    ShiftAudit[]
+  users     User[]
 }
 
 // Representa a auditoria de um turno inteiro (uma foto do formulário)
@@ -56,4 +57,23 @@ model TurnstileReading {
   isOutOfOrder Boolean  @default(false)
 
   audit        ShiftAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  OPERATOR
+  STATION_ADMIN
+  COORDINATOR
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  role         Role     @default(OPERATOR)
+  
+  // O usuário está vinculado a uma estação específica? (Coordenador = null)
+  stationId    String?
+  station      Station? @relation(fields: [stationId], references: [id])
+  
+  createdAt    DateTime @default(now())
 }
