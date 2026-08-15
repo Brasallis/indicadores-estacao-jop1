@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { cookies } from "next/headers";
-import LogoutButton from "@/components/LogoutButton";
+import ProfileButton from "@/components/ProfileButton";
 import { jwtVerify } from "jose";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'chave_super_secreta_linha_uni_123';
@@ -54,7 +54,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
-        {isLoggedIn && <LogoutButton role={role} station={station} />}
+        {isLoggedIn && <ProfileButton role={role} station={station} />}
         {children}
         <Analytics />
         <SpeedInsights />

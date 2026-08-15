@@ -1,17 +1,11 @@
 'use client';
 
 import React from 'react';
-import { LogOut } from 'lucide-react';
+import { UserCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function LogoutButton({ role, station }: { role?: string, station?: string }) {
+export default function ProfileButton({ role, station }: { role?: string, station?: string }) {
   const router = useRouter();
-
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/login');
-    router.refresh();
-  };
 
   const getRoleBadge = () => {
     if (role === 'COORDINATOR') return <span style={{ background: '#1d4ed8', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>Coordenador</span>;
@@ -24,7 +18,7 @@ export default function LogoutButton({ role, station }: { role?: string, station
     <div style={{ position: 'fixed', top: '16px', right: '16px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '12px' }}>
       {getRoleBadge()}
       <button 
-        onClick={handleLogout}
+        onClick={() => router.push('/perfil')}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -39,9 +33,9 @@ export default function LogoutButton({ role, station }: { role?: string, station
           boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
           backdropFilter: 'blur(4px)'
         }}
-        title="Sair do Sistema"
+        title="Meu Perfil"
       >
-        <LogOut size={16} /> Sair
+        <UserCircle size={20} /> Meu Perfil
       </button>
     </div>
   );
