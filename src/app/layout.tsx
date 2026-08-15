@@ -6,6 +6,9 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import Header from "@/components/Header";
 import { jwtVerify } from "jose";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'chave_super_secreta_linha_uni_123';
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
@@ -39,13 +42,24 @@ export default async function RootLayout({
   let role = '';
   let station = '';
   let isLoggedIn = false;
+  let username = '';
+  let stationId = '';
+  let stations: any[] = [];
 
   if (token) {
     try {
       const { payload } = await jwtVerify(token, encodedSecret);
       role = String(payload.role || '');
       station = String(payload.stationCode || '');
+      username = String(payload.username || '');
+      stationId = String(payload.stationId || '');
       isLoggedIn = true;
+
+      // Busca as estações no banco apenas se estiver logado (para uso no Dropdown de troca)
+      stations = await prisma.station.findMany({
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, code: true }
+      });
     } catch(e) {
       // Ignora erro de token inválido no layout
     }
@@ -54,7 +68,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body style={{ margin: 0, padding: 0 }}>
-        {isLoggedIn && <Header role={role} station={station} />}
+        {isLoggedIn && <Header role={role} stationCode={station} username={username} stationId={stationId} stations={stations} />}
         {children}
         <Analytics />
         <SpeedInsights />
