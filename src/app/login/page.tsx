@@ -30,16 +30,13 @@ export default function Login() {
         throw new Error(data.error || 'Erro ao fazer login');
       }
 
-      // Atualiza o layout do servidor para reconhecer o cookie imediatamente
-      router.refresh();
-
       // Redirecionamento baseado no perfil (Role)
       if (data.role === 'OPERATOR' || data.role === 'STATION_ADMIN') {
         // Redireciona para a estação específica do usuário
-        router.push(`/estacao/${data.stationCode?.toLowerCase() || 'jop-01'}`);
+        window.location.href = `/estacao/${data.stationCode?.toLowerCase() || 'jop-01'}`;
       } else {
         // Coordenador (Acesso Geral)
-        router.push('/');
+        window.location.href = '/';
       }
 
     } catch (err: any) {

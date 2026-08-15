@@ -104,8 +104,8 @@ export default function Header({ role, stationCode, username, stationId, station
           style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
           onClick={() => router.push(role === 'COORDINATOR' ? '/' : `/estacao/${stationCode?.toLowerCase() || 'jop-01'}`)}
         >
-          <Train color="#f9ab00" size={24} />
-          <span style={{ fontWeight: 700, fontSize: '1.2rem', color: '#0f172a', letterSpacing: '-0.5px' }}>Linha Uni <span style={{ color: '#94a3b8', fontWeight: 400 }}>|</span> Indicadores</span>
+          <img src="/logo-linha-uni.png" alt="Logo Linha Uni" style={{ height: '28px', objectFit: 'contain' }} />
+          <span style={{ fontWeight: 700, fontSize: '1.2rem', color: '#0f172a', letterSpacing: '-0.5px' }}>Controle de Fluxo</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', position: 'relative' }} ref={menuRef}>

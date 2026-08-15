@@ -72,7 +72,6 @@ export default function Home() {
   return (
     <main className={styles.container}>
       <header className={styles.header} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-        <img src="/logo-linha-uni.png" alt="Linha 6 - Linha Uni" style={{ height: '80px', objectFit: 'contain', marginBottom: '0.5rem' }} />
         <h1 className={styles.title}>Controle de Fluxo - Linha 6 Laranja</h1>
         <p className={styles.subtitle}>
           Visão Executiva Global
