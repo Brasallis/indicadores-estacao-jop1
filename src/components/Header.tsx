@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { UserCircle, Train, LogOut, Key, MapPin, X, CheckCircle2 } from 'lucide-react';
+import { UserCircle, Train, LogOut, Key, MapPin, X, CheckCircle2, Users } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import TeamManager from './TeamManager';
 
 export default function Header({ role, stationCode, username, stationId, stations }: any) {
   const router = useRouter();
@@ -10,7 +11,7 @@ export default function Header({ role, stationCode, username, stationId, station
   
   const [menuOpen, setMenuOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState<'password' | 'station'>('password');
+  const [drawerMode, setDrawerMode] = useState<'password' | 'station' | 'team'>('password');
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,7 +40,7 @@ export default function Header({ role, stationCode, username, stationId, station
     return null;
   };
 
-  const openDrawer = (mode: 'password' | 'station') => {
+  const openDrawer = (mode: 'password' | 'station' | 'team') => {
     setDrawerMode(mode);
     setDrawerOpen(true);
     setMenuOpen(false);
@@ -124,6 +125,11 @@ export default function Header({ role, stationCode, username, stationId, station
               <button onClick={() => openDrawer('station')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', color: '#334155' }} disabled={role === 'COORDINATOR'}>
                 <MapPin size={16} /> Trocar Estação {role === 'COORDINATOR' && '(Global)'}
               </button>
+              {role !== 'OPERATOR' && (
+                <button onClick={() => openDrawer('team')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', color: '#334155' }}>
+                  <Users size={16} /> Gerenciar Equipe
+                </button>
+              )}
               <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', border: 'none', background: '#fef2f2', textAlign: 'left', cursor: 'pointer', color: '#dc2626', fontWeight: 'bold' }}>
                 <LogOut size={16} /> Sair do Sistema
               </button>
@@ -145,8 +151,10 @@ export default function Header({ role, stationCode, username, stationId, station
       }}>
         <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {drawerMode === 'password' ? <Key size={20} color="#f9ab00" /> : <MapPin size={20} color="#f9ab00" />}
-            {drawerMode === 'password' ? 'Alterar Senha' : 'Trocar de Estação'}
+            {drawerMode === 'password' && <Key size={20} color="#f9ab00" />}
+            {drawerMode === 'station' && <MapPin size={20} color="#f9ab00" />}
+            {drawerMode === 'team' && <Users size={20} color="#f9ab00" />}
+            {drawerMode === 'password' ? 'Alterar Senha' : drawerMode === 'station' ? 'Trocar de Estação' : 'Gerenciar Equipe'}
           </h2>
           <button onClick={() => setDrawerOpen(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b' }}>
             <X size={24} />
@@ -160,8 +168,11 @@ export default function Header({ role, stationCode, username, stationId, station
             </div>
           )}
 
-          <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {drawerMode === 'password' ? (
+          {drawerMode === 'team' ? (
+            <TeamManager role={role} stationId={stationId} stations={stations} />
+          ) : (
+            <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {drawerMode === 'password' ? (
               <>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569' }}>Nova Senha</label>
@@ -187,6 +198,7 @@ export default function Header({ role, stationCode, username, stationId, station
               {isLoading ? 'Salvando...' : 'Salvar'}
             </button>
           </form>
+          )}
         </div>
       </div>
     </>
