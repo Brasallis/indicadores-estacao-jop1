@@ -20,7 +20,7 @@ async function getAuthPayload() {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const payload = await getAuthPayload();
   if (!payload || payload.role === 'OPERATOR') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 403 });
@@ -28,7 +28,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
   try {
     const { password, role, stationId } = await request.json();
-    const targetUserId = params.id;
+    const resolvedParams = await params;
+    const targetUserId = resolvedParams.id;
 
     const targetUser = await prisma.user.findUnique({ where: { id: targetUserId } });
     if (!targetUser) return NextResponse.json({ error: 'Usuário não encontrado.' }, { status: 404 });
@@ -64,14 +65,15 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const payload = await getAuthPayload();
   if (!payload || payload.role === 'OPERATOR') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 403 });
   }
 
   try {
-    const targetUserId = params.id;
+    const resolvedParams = await params;
+    const targetUserId = resolvedParams.id;
     const targetUser = await prisma.user.findUnique({ where: { id: targetUserId } });
     if (!targetUser) return NextResponse.json({ error: 'Usuário não encontrado.' }, { status: 404 });
 

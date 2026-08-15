@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     const role = payload.role as string;
     const stationId = payload.stationId as string;
 
-    let users = [];
+    let users: any[] = [];
 
     if (role === 'COORDINATOR') {
       // Coordenador vê todos os Admins e Operadores
